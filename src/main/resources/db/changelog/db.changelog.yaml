@@ -1,0 +1,232 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 01-create-evaluation-table
+      author: hodei
+      changes:
+        - createTable:
+            schema: public
+            tableName: evaluation
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  startWith: 1
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: energy
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: well_being
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: production
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modified_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 02-evaluation-saved-trigger
+      author: hodei
+      dbms: '!h2' #Specifies the type of a database for which that changeset will be used. When the migration step is running, it checks the database type against this attribute.
+      changes:
+        - sqlFile:
+            encoding: utf-8
+            splitStatements: false
+            path: db/notifications/evaluation_saved_trigger.sql
+            stripComments: true
+  - changeSet:
+      id: 03-add-team-table
+      author: hodei
+      changes:
+        - createTable:
+            schema: public
+            tableName: team
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  startWith: 1
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modified_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 04-create-user-table
+      author: hodei
+      changes:
+        - createTable:
+            schema: public
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  startWith: 1
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 05-alter-evaluation-table
+      author: hodei
+      changes:
+        - addColumn:
+            tableName: evaluation
+            columns:
+              - column:
+                  name: team_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_team_id
+                    references: team(id)
+                    onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: evaluation
+            referencedColumnNames: id
+            referencedTableName: user
+            onDelete: CASCADE
+            constraintName: FK_user_id
+  - changeSet:
+      id: 06-create-user-teams
+      author: hodei
+      changes:
+        - createTable:
+            schema: public
+            tableName: user_teams
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  startWith: 1
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    unique: true
+
+
+              - column:
+                  name: team_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_team_id
+                    references: team(id)
+                    onDelete: CASCADE
+
+              - column:
+                  name: user_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_user_id
+                    references: user(id)
+                    onDelete: CASCADE
+
+
+              - column:
+                  name: created_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modified_date
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+                    #columnNames id mustn't be there, but has to be unique
+        - addUniqueConstraint:
+            columnNames: user_id, team_id
+            tableName: user_teams
+            constraintName: PK_user_teams
+  - changeSet:
+      id: 07-alter-evaluation-table-add-userTeams
+      author: hodei
+      changes:
+        - addColumn:
+            tableName: evaluation
+            columns:
+              - column:
+                  name: user_teams_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: FK_user_teams_id
+                    references: user_teams(id)
+                    onDelete: CASCADE
+
+  - changeSet:
+      id: 08-add-mock-data
+      author: hodei
+      dbms: '!h2' #Specifies the type of a database for which that changeset will be used. When the migration step is running, it checks the database type against this attribute.
+      changes:
+        - sqlFile:
+            encoding: utf-8
+            splitStatements: false
+            path: db/mockdata/insert_users.sql
+        - sqlFile:
+            encoding: utf-8
+            splitStatements: false
+            path: db/mockdata/insert_teams.sql
+
+

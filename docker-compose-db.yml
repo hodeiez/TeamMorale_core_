@@ -1,0 +1,22 @@
+version: '3.5'
+services :
+  db:
+    image: postgres
+    container_name: team_morale_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASS}
+      POSTGRES_DB: ${DATABASE_NAME}
+  admin:
+    image: dpage/pgadmin4
+    container_name: team_morale_db_admin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    depends_on:
+      - db
+    ports:
+      - 5050:80
