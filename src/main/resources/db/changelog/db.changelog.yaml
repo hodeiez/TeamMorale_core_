@@ -1,5 +1,5 @@
 databaseChangeLog:
-
+#TODO: be aware of mockdata and id's
   - changeSet:
       id: 01-create-evaluation-table
       author: hodei
@@ -68,9 +68,9 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: int
+                  type: serial
                   autoIncrement: true
-                  startWith: 1
+                  startWith: 7 #We have mockDATA so we start after that
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -103,7 +103,7 @@ databaseChangeLog:
                   name: id
                   type: int
                   autoIncrement: true
-                  startWith: 1
+                  startWith: 7 #We have mockDATA so we start after that
                   constraints:
                     primaryKey: true
                     nullable: false

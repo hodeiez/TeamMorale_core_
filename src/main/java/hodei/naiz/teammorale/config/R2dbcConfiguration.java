@@ -45,7 +45,7 @@ public class R2dbcConfiguration extends AbstractR2dbcConfiguration {
                 .port(port)
                 .username(username)
                 .password(password)
-                .database(database).sslMode(SSLMode.REQUIRE)
+                .database(database)//.sslMode(SSLMode.REQUIRE) //TODO: uncomment for HEROKU
                 .build());
 
 
