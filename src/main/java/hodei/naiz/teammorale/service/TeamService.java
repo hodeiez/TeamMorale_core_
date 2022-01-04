@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Created by Hodei Eceiza
@@ -63,6 +64,7 @@ public class TeamService {
     }
 
     /*extra operations*/
+
        @Transactional
     public Mono<Long> addUserToTeam(Long userId, Long teamId) {
         return teamRepo.existsById(teamId).flatMap(teamExists -> teamExists ?
@@ -70,5 +72,19 @@ public class TeamService {
                                teamRepo.addUserToTeam(userId, teamId)
                                 : Mono.error(new IllegalArgumentException("User doesn't exist")))
                         : Mono.error(new IllegalArgumentException("Team doesn't exist")));
+    }
+    public Mono<Long> addUserToTeamWithEmail(String email,Long teamId){
+           return userRepo.findOneByEmail(email)
+                   .flatMap(u->addUserToTeam(u.getId(),teamId))
+                   .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
+    }
+    /*
+    -get team id and emaillist.
+    -send email to list
+    -if email exists run addUserToTeam
+     */
+    @Transactional
+    public Mono<Team> addUsersToTeam(List mails, Long teamId){
+           return null;
     }
 }

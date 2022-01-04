@@ -17,4 +17,6 @@ import reactor.core.publisher.Mono;
 public interface UserRepo extends R2dbcRepository<User,Long> {
     @Query("SELECT public.user.id,public.user.username,public.user.email,public.user.created_date,public.user.modified_date FROM user_teams JOIN public.user ON public.user.id=user_id where user_teams.id=:userTeamsId;")
     Mono<User> getByUserTeamsId (Long userTeamsId);
+    @Query("select * from public.user where email=:email")
+    Mono<User> findOneByEmail(String email);
 }
