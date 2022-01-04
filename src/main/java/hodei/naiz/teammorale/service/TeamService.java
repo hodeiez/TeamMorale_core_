@@ -2,6 +2,7 @@ package hodei.naiz.teammorale.service;
 
 import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.persistance.TeamRepo;
+import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.TeamMapper;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,9 @@ import java.time.LocalDateTime;
 public class TeamService {
     private final TeamRepo teamRepo;
     private final TeamMapper teamMapper;
-/*Basic CRUDs*/
+    private final UserRepo userRepo;
+
+    /*Basic CRUDs*/
     @Transactional
     public Mono<TeamResource> create(Team team) {
         if (team.getId() != null)
@@ -36,11 +39,11 @@ public class TeamService {
     public Mono<TeamResource> update(Team team) {
         if (team.getId() != null) {
             return teamRepo.findById(team.getId())
-                .flatMap(t -> {
-                    t.setName(team.getName());
-                    t.setModifiedDate(LocalDateTime.now());
-                    return teamRepo.save(t).map(teamMapper::getResource);
-                });
+                    .flatMap(t -> {
+                        t.setName(team.getName());
+                        t.setModifiedDate(LocalDateTime.now());
+                        return teamRepo.save(t).map(teamMapper::getResource);
+                    });
 
         }
         return Mono.error(new IllegalArgumentException("Need an Id to update a team"));
@@ -54,14 +57,18 @@ public class TeamService {
     @Transactional
     public Mono<TeamResource> delete(Long id) {
         return teamRepo.findById(id)
-                .flatMap(t->teamRepo.delete(t)
+                .flatMap(t -> teamRepo.delete(t)
                         .then(Mono.just(t)
                                 .map(teamMapper::getResource)));
     }
+
     /*extra operations*/
-    //TODO:rewrite the method, has to check if user and team exists,if user already is in team, and the return the teamResource
-    @Transactional
-    public Mono<Long> addUserToTeam (Long userId,Long teamId){
-        return teamRepo.addUserToTeam(userId,teamId);
+       @Transactional
+    public Mono<Long> addUserToTeam(Long userId, Long teamId) {
+        return teamRepo.existsById(teamId).flatMap(teamExists -> teamExists ?
+                        userRepo.existsById(userId).flatMap(userExists -> userExists ?
+                               teamRepo.addUserToTeam(userId, teamId)
+                                : Mono.error(new IllegalArgumentException("User doesn't exist")))
+                        : Mono.error(new IllegalArgumentException("Team doesn't exist")));
     }
 }

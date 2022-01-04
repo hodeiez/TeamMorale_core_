@@ -20,4 +20,5 @@ public interface TeamRepo extends R2dbcRepository<Team,Long> {
     Mono<Long> addUserToTeam(Long userId, Long teamId);
     @Query("SELECT team.id,team.name,team.created_date,team.modified_date FROM user_teams JOIN team ON team.id=team_id where user_teams.id=:userTeamsId;")
     Mono<Team> getByUserTeamsId (Long userTeamsId);
+
 }
