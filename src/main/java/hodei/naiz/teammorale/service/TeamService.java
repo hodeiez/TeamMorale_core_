@@ -41,13 +41,7 @@ public class TeamService {
                     t.setModifiedDate(LocalDateTime.now());
                     return teamRepo.save(t).map(teamMapper::getResource);
                 });
-           /* return teamRepo.existsById(team.getId())
-                    .then(teamRepo.findById(team.getId()))
-                    .flatMap(t -> {
-                        t.setName(team.getName());
-                        t.setModifiedDate(LocalDateTime.now())
-                        return teamRepo.save(t).map(teamMapper::getResource);
-                    });*/
+
         }
         return Mono.error(new IllegalArgumentException("Need an Id to update a team"));
 
