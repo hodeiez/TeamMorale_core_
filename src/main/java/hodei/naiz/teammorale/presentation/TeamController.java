@@ -45,4 +45,11 @@ public class TeamController {
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+    /*extra endpoints*/
+    @PostMapping("/addUser/user/{userId}/team/{teamId}")
+    public Mono<ResponseEntity<Long>> addUserToTeam (@PathVariable("userId") Long userId,@PathVariable("teamId") Long teamId){
+        return teamService.addUserToTeam(userId,teamId)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
 }

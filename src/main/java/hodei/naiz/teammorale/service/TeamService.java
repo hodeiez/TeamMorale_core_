@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class TeamService {
     private final TeamRepo teamRepo;
     private final TeamMapper teamMapper;
-
+/*Basic CRUDs*/
     @Transactional
     public Mono<TeamResource> create(Team team) {
         if (team.getId() != null)
@@ -53,9 +53,15 @@ public class TeamService {
 
     @Transactional
     public Mono<TeamResource> delete(Long id) {
-
-        return teamRepo.findById(id).flatMap(t->teamRepo.delete(t).then(Mono.just(t).map(teamMapper::getResource)));
-
-
+        return teamRepo.findById(id)
+                .flatMap(t->teamRepo.delete(t)
+                        .then(Mono.just(t)
+                                .map(teamMapper::getResource)));
+    }
+    /*extra operations*/
+    //TODO:rewrite the method, has to check if user and team exists,if user already is in team, and the return the teamResource
+    @Transactional
+    public Mono<Long> addUserToTeam (Long userId,Long teamId){
+        return teamRepo.addUserToTeam(userId,teamId);
     }
 }

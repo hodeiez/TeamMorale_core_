@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public abstract class TeamMapper {
     @Mapping(source = "createdDate", target = "startDate", dateFormat = "dd.MM.yy")
     public abstract TeamResource getResource(Team team);
-//TODO: when user repo done, uncomment and add TeamCreateResource
+//TODO: when create team by list done, uncomment and add TeamCreateResource
     /*
     @Mapping(source = "createdDate", target = "startDate", dateFormat = "dd.MM.yy")
     @Mapping(source = "modifiedDate", target = "lastUpdateDate", dateFormat = "dd.MM.yy")
