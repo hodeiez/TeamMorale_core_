@@ -3,6 +3,7 @@ package hodei.naiz.teammorale.service;
 import hodei.naiz.teammorale.domain.User;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.UserMapper;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 
 import lombok.RequiredArgsConstructor;
@@ -58,5 +59,8 @@ public class UserService {
         return userRepo.findById(id).flatMap(u->userRepo.delete(u).then(Mono.just(u).map(userMapper::toUserResource)));
 
 
+    }
+    public Mono<UserResource> login(UserLoginResource userlogin){
+        return userRepo.findOneByEmailAndPassword(userlogin.getEmail(), userlogin.getPassword()).map(userMapper::toUserResource);
     }
 }

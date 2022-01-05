@@ -1,6 +1,7 @@
 package hodei.naiz.teammorale.presentation;
 
 import hodei.naiz.teammorale.domain.User;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import hodei.naiz.teammorale.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,14 @@ public class UserController {
     public Mono<ResponseEntity<UserResource>> deleteById(@PathVariable("id") Long id) {
         return userService.delete(id)
                 .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+    /*
+    extra endpoints
+     */
+    @GetMapping("/login")
+    public Mono<ResponseEntity<UserResource>> login(@RequestBody UserLoginResource userlogin){
+        return userService.login(userlogin).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }
