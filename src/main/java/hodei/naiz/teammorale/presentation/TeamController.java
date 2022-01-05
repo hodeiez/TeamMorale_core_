@@ -1,6 +1,7 @@
 package hodei.naiz.teammorale.presentation;
 
 import hodei.naiz.teammorale.domain.Team;
+import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import hodei.naiz.teammorale.service.TeamService;
 import lombok.RequiredArgsConstructor;
@@ -52,4 +53,10 @@ public class TeamController {
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+    @PostMapping("/addemails")
+    public Mono<ResponseEntity<TeamAndMembersResource>> addUserEmailsToTeam(@RequestBody TeamAndMembersResource team){
+        return teamService.addUsersToTeam(team.getMembers(), team.getId()).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
 }

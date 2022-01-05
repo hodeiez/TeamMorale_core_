@@ -1,6 +1,8 @@
 package hodei.naiz.teammorale.presentation.mapper;
 
 import hodei.naiz.teammorale.domain.Team;
+import hodei.naiz.teammorale.domain.User;
+import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,12 +17,11 @@ import java.util.stream.Collectors;
  * Project: TeamMorale
  * Copyright: MIT
  */
-@Mapper(componentModel="spring")//, uses={UserMapper.class})
+@Mapper(componentModel="spring", uses={UserMapper.class})
 public abstract class TeamMapper {
     @Mapping(source = "createdDate", target = "startDate", dateFormat = "dd.MM.yy")
     public abstract TeamResource getResource(Team team);
-//TODO: when create team by list done, uncomment and add TeamCreateResource
-    /*
+
     @Mapping(source = "createdDate", target = "startDate", dateFormat = "dd.MM.yy")
     @Mapping(source = "modifiedDate", target = "lastUpdateDate", dateFormat = "dd.MM.yy")
     public abstract TeamAndMembersResource getWithMembersResource(Team team);
@@ -31,6 +32,6 @@ public abstract class TeamMapper {
     }
 
 
-    public abstract TeamCreateResource createTeam(String team);
- */
+    //public abstract TeamCreateResource createTeam(String team);
+
 }

@@ -4,6 +4,7 @@ import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.TeamMapper;
+import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -73,18 +74,22 @@ public class TeamService {
                                 : Mono.error(new IllegalArgumentException("User doesn't exist")))
                         : Mono.error(new IllegalArgumentException("Team doesn't exist")));
     }
+    @Transactional
     public Mono<Long> addUserToTeamWithEmail(String email,Long teamId){
            return userRepo.findOneByEmail(email)
                    .flatMap(u->addUserToTeam(u.getId(),teamId))
                    .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
     }
-    /*
-    -get team id and emaillist.
-    -send email to list
-    -if email exists run addUserToTeam
-     */
+    //TODO: we need to get the userTeamId, maybe get userId from request??
     @Transactional
-    public Mono<Team> addUsersToTeam(List mails, Long teamId){
-           return null;
+    public Mono<TeamAndMembersResource> addUsersToTeam(List<String> mails, Long teamId){
+           return Flux.fromIterable(mails).concatMap(mail->userRepo.findOneByEmail(mail)
+                   .flatMap(u->addUserToTeam(u.getId(),teamId)))
+                   //.concatMap(mail->addUserToTeamWithEmail(mail,teamId))
+                   .then(teamRepo.findById(teamId)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
+    private Mono<Team> setUsersInTeam(Team team) {
+        return Mono.just(team).zipWith(userRepo.findAllByTeamId(team.getId()).collectList(), Team::setMembers);
+    }
+
 }
