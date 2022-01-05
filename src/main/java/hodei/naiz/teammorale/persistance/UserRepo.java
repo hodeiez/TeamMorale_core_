@@ -22,4 +22,6 @@ public interface UserRepo extends R2dbcRepository<User,Long> {
     Mono<User> findOneByEmail(String email);
     @Query("SELECT public.user.id, public.user.username FROM user_teams join public.user on public.user.id=user_id where team_id=:teamId")
     Flux<User> findAllByTeamId(Long teamId);
+    @Query("SELECT EXISTS(SELECT * FROM user_teams WHERE team_id=:teamId AND user_id=:userId);")
+    Mono<Boolean> userExistsInTeam(Long userId, Long teamId);
 }

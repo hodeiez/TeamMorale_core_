@@ -80,11 +80,13 @@ public class TeamService {
                    .flatMap(u->addUserToTeam(u.getId(),teamId))
                    .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
     }
-    //TODO: we need to get the userTeamId, maybe get userId from request AND we need to check if emails exists and then add them
+    //TODO: we need to get the userTeamId, maybe get userId from request
     @Transactional
     public Mono<TeamAndMembersResource> addUsersToTeam(List<String> mails, Long teamId){
            return Flux.fromIterable(mails).concatMap(mail->userRepo.findOneByEmail(mail)
-                   .flatMap(u->addUserToTeam(u.getId(),teamId)))
+                   .flatMap(u->userRepo.userExistsInTeam(u.getId(),teamId)
+                           .flatMap(exists->!exists?addUserToTeam(u.getId(),teamId)
+                                   :Mono.just(u))))
                    //.concatMap(mail->addUserToTeamWithEmail(mail,teamId))
                    .then(teamRepo.findById(teamId)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
