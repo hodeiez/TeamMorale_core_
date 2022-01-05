@@ -8,6 +8,7 @@ import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.EvaluationMapper;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;
+import hodei.naiz.teammorale.service.notification.Topics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class EvaluationService {
     private final TeamRepo teamRepo;
     private final UserRepo userRepo;
     private final EvaluationMapper evaluationMapper;
+    private final NotificationService notificationService;
 
     /**
      * Creates an evaluation, if there is no an evaluation with same userTeamId and date.
@@ -85,6 +87,20 @@ public class EvaluationService {
 
     }
 
+    /**
+     * get User id and Team id from userTeamsId, then listen to notification and return as evaluationResource
+     * @param userTeamId
+     * @return
+     */
+    public Flux<EvaluationResource> listenSaved(Long userTeamId) {
+
+     return userRepo.getByUserTeamsId(userTeamId)
+             .zipWith(teamRepo.getByUserTeamsId(userTeamId))
+             .flatMapMany(t->notificationService.listen(Topics.EVALUATION_SAVED, t.getT2().getId(), t.getT2().getId()))
+                     .flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
+
+
+    }
     private Mono<Evaluation> getRelations(final Evaluation evaluation) {
         return Mono.just(evaluation)
                 .zipWith(teamRepo.findById(evaluation.getTeamId()))

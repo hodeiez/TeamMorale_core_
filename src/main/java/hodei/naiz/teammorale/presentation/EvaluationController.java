@@ -1,9 +1,12 @@
 package hodei.naiz.teammorale.presentation;
 
 import hodei.naiz.teammorale.domain.Evaluation;
+import hodei.naiz.teammorale.presentation.events.EvaluationSaved;
+import hodei.naiz.teammorale.presentation.events.Event;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;
 import hodei.naiz.teammorale.service.EvaluationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -45,4 +48,10 @@ public class EvaluationController {
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+    @GetMapping(value = "events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Event> listenToEvents(@RequestParam("userTeamId") String userTeamId) {
+        return evaluationService.listenSaved(Long.parseLong(userTeamId))
+                .map(EvaluationSaved::new);
+    }
+
 }
