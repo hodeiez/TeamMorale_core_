@@ -1,6 +1,7 @@
 package hodei.naiz.teammorale.service;
 
 import hodei.naiz.teammorale.domain.Team;
+import hodei.naiz.teammorale.domain.User;
 import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.TeamMapper;
@@ -74,6 +75,9 @@ public class TeamService {
                                 : Mono.error(new IllegalArgumentException("User doesn't exist")))
                         : Mono.error(new IllegalArgumentException("Team doesn't exist")));
     }
+    public Flux<TeamAndMembersResource> getByEmail(String email){
+          return teamRepo.getAllByEmail(email).flatMap(t->addUserTeamsIdToTeam(t,email)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
+    }
     @Transactional
     public Mono<Long> addUserToTeamWithEmail(String email,Long teamId){
            return userRepo.findOneByEmail(email)
@@ -93,5 +97,10 @@ public class TeamService {
     private Mono<Team> setUsersInTeam(Team team) {
         return Mono.just(team).zipWith(userRepo.findAllByTeamId(team.getId()).collectList(), Team::setMembers);
     }
+    private Mono<Team> addUserTeamsIdToTeam(Team team,String email){
+       return userRepo.findOneByEmail(email).map(User::getId).flatMap(u->Mono.just(team).zipWith(teamRepo.getUserTeamsId(u,team.getId()),Team::setUserTeamsId));
+        //   return Mono.just(team).zipWith(teamRepo.getUserTeamsId(userRepo.findOneByEmail(email),team.getId()),Team::setUserTeamsId);
+    }
+
 
 }

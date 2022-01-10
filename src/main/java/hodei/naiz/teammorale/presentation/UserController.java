@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
  * Project: UserMorale
  * Copyright: MIT
  */
+@CrossOrigin
 @RestController
 @RequestMapping("user")
 @RequiredArgsConstructor
@@ -49,7 +50,7 @@ public class UserController {
     /*
     extra endpoints
      */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public Mono<ResponseEntity<UserResource>> login(@RequestBody UserLoginResource userlogin){
         return userService.login(userlogin).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
