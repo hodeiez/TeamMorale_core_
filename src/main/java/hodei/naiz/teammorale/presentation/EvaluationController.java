@@ -55,5 +55,10 @@ public class EvaluationController {
         return evaluationService.listenSaved(Long.parseLong(userTeamId))
                 .map(EvaluationSaved::new);
     }
+    @GetMapping("/myTeamToday/{userTeamsId}")
+    public Flux<EvaluationResource> getByTeamIdToday( @PathVariable("userTeamsId") Long userTeamsId) {
+        return evaluationService.getByDateAndTeamId(userTeamsId);
+
+    }
 
 }

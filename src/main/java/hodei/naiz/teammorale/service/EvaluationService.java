@@ -96,10 +96,15 @@ public class EvaluationService {
 
      return userRepo.getByUserTeamsId(userTeamId)
              .zipWith(teamRepo.getByUserTeamsId(userTeamId))
-             .flatMapMany(t->notificationService.listen(Topics.EVALUATION_SAVED, t.getT2().getId(), t.getT2().getId()))
+             .flatMapMany(t->notificationService.listen(Topics.EVALUATION_SAVED, t.getT1().getId(), t.getT2().getId()))
                      .flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
 
 
+    }
+
+    //TODO: decide if validate today is today??
+    public Flux<EvaluationResource> getByDateAndTeamId(Long userTeamsId) {
+        return evaluationRepo.findAllByDateAndTeamId(userTeamsId).flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
     }
     private Mono<Evaluation> getRelations(final Evaluation evaluation) {
         return Mono.just(evaluation)
