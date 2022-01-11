@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
  * Project: TeamMorale
  * Copyright: MIT
  */
+@CrossOrigin
 @RestController
 @RequestMapping("evaluation")
 @RequiredArgsConstructor
@@ -26,8 +27,9 @@ public class EvaluationController {
     private final EvaluationService evaluationService;
 
     @PostMapping
-    public Mono<EvaluationResource> create(@RequestBody Evaluation evaluation) {
-        return evaluationService.create(evaluation);
+    public Mono<ResponseEntity<EvaluationResource>> create(@RequestBody Evaluation evaluation) {
+        return evaluationService.create(evaluation).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PutMapping
