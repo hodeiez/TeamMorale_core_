@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -78,21 +79,27 @@ public class TeamService {
     public Flux<TeamAndMembersResource> getByEmail(String email){
           return teamRepo.getAllByEmail(email).flatMap(t->addUserTeamsIdToTeam(t,email)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
-    @Transactional
-    public Mono<Long> addUserToTeamWithEmail(String email,Long teamId){
-           return userRepo.findOneByEmail(email)
-                   .flatMap(u->addUserToTeam(u.getId(),teamId))
-                   .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
-    }
+
     //TODO: we need to get the userTeamId, maybe get userId from request
     @Transactional
     public Mono<TeamAndMembersResource> addUsersToTeam(List<String> mails, Long teamId){
+
            return Flux.fromIterable(mails).concatMap(mail->userRepo.findOneByEmail(mail)
                    .flatMap(u->userRepo.userExistsInTeam(u.getId(),teamId)
                            .flatMap(exists->!exists?addUserToTeam(u.getId(),teamId)
                                    :Mono.just(u))))
                    //.concatMap(mail->addUserToTeamWithEmail(mail,teamId))
                    .then(teamRepo.findById(teamId)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
+    }
+
+    @Transactional
+    public Mono<TeamAndMembersResource> createWithUsers(TeamAndMembersResource teamWithEmails, String creatorEmail){
+
+     return teamRepo.save(new Team().setName(teamWithEmails.getName()))
+                .flatMap(t->addUsersToTeam(teamWithEmails.getMembers(), t.getId())
+                        .zipWith(addUserToTeamWithEmail(creatorEmail,t.getId()))
+                        .map(res->res.getT1().withUserTeamsId(res.getT2())));
+
     }
     private Mono<Team> setUsersInTeam(Team team) {
         return Mono.just(team).zipWith(userRepo.findAllByTeamId(team.getId()).collectList(), Team::setMembers);
@@ -101,6 +108,13 @@ public class TeamService {
        return userRepo.findOneByEmail(email).map(User::getId).flatMap(u->Mono.just(team).zipWith(teamRepo.getUserTeamsId(u,team.getId()),Team::setUserTeamsId));
         //   return Mono.just(team).zipWith(teamRepo.getUserTeamsId(userRepo.findOneByEmail(email),team.getId()),Team::setUserTeamsId);
     }
+    //@Transactional
+    private Mono<Long> addUserToTeamWithEmail(String email,Long teamId){
+        return userRepo.findOneByEmail(email)
+                .flatMap(u->addUserToTeam(u.getId(),teamId))
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
+    }
+
 
 
 }

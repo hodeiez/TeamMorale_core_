@@ -3,6 +3,7 @@ package hodei.naiz.teammorale.presentation.mapper.resources;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.With;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * Project: TeamMorale
  * Copyright: MIT
  */
+@With
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @AllArgsConstructor

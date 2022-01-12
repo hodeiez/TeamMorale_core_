@@ -50,7 +50,7 @@ public class TeamController {
     }
     /*extra endpoints*/
     //TODO: adapt when security is on
-    @GetMapping("/my_teams/")
+    @GetMapping("/myTeams/")
     public Flux<TeamAndMembersResource> getMyTeams(@RequestHeader(value="Authorization") String authorization){
         return teamService.getByEmail(authorization);
     }
@@ -64,6 +64,11 @@ public class TeamController {
     @PostMapping("/addemails")
     public Mono<ResponseEntity<TeamAndMembersResource>> addUserEmailsToTeam(@RequestBody TeamAndMembersResource team){
         return teamService.addUsersToTeam(team.getMembers(), team.getId()).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+    @PostMapping("/createTeamWithEmails/")
+    public Mono<ResponseEntity<TeamAndMembersResource>> createTeamWithEmails(@RequestBody TeamAndMembersResource team,@RequestHeader(value="Authorization") String authorization){
+        return teamService.createWithUsers(team,authorization).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
