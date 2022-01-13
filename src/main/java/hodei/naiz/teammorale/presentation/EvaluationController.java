@@ -1,6 +1,7 @@
 package hodei.naiz.teammorale.presentation;
 
 import hodei.naiz.teammorale.domain.Evaluation;
+import hodei.naiz.teammorale.domain.EvaluationCalculations;
 import hodei.naiz.teammorale.presentation.events.EvaluationSaved;
 import hodei.naiz.teammorale.presentation.events.Event;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;
@@ -63,6 +64,21 @@ public class EvaluationController {
     @PostMapping("/createOrUpdate/")
     public Mono<ResponseEntity<EvaluationResource>> createOrUpdate(@RequestBody Evaluation evaluation){
         return evaluationService.createOrUpdate(evaluation).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/stats/date/{date}/team/{teamId}")
+    public Mono<ResponseEntity<EvaluationCalculations>> getAverageByDateAndTeam(@PathVariable("date") String date, @PathVariable("teamId") Long teamId){
+        return evaluationService.getAverageByDateAndTeam(date,teamId).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+
+    }
+    @GetMapping("/stats/team/{teamId}")
+    public Flux<EvaluationCalculations> getAllAverageOfDatesByTeam(@PathVariable("teamId") Long teamId){
+        return evaluationService.getAllAverageOfDatesByTeam(teamId);
+    }
+    @GetMapping("/stats/total/team/{teamId}")
+    public Mono<ResponseEntity<EvaluationCalculations>> getTotalByTeam(@PathVariable("teamId") Long teamId){
+        return evaluationService.getTotalAverageByTeam(teamId).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 

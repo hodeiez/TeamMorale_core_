@@ -1,6 +1,7 @@
 package hodei.naiz.teammorale.service;
 
 import hodei.naiz.teammorale.domain.Evaluation;
+import hodei.naiz.teammorale.domain.EvaluationCalculations;
 import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.domain.User;
 import hodei.naiz.teammorale.persistance.EvaluationRepo;
@@ -126,6 +127,20 @@ public class EvaluationService {
     public Flux<EvaluationResource> getByDateAndTeamId(Long userTeamsId) {
         return evaluationRepo.findAllByDateAndTeamId(userTeamsId).flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
     }
+
+    public Mono<EvaluationCalculations> getAverageByDateAndTeam(String date, Long teamId){
+        return evaluationRepo.getAverageByDateAndTeam(teamId,date);
+    }
+    public Mono<EvaluationCalculations> getTotalAverageByTeam( Long teamId){
+        return evaluationRepo.getTotalAverageByTeam(teamId);
+    }
+
+    public Flux<EvaluationCalculations> getAllAverageOfDatesByTeam( Long teamId){
+        return evaluationRepo.getAllAverageOfDatesByTeam(teamId);
+    }
+
+
+
     private Mono<Evaluation> getRelations(final Evaluation evaluation) {
         return Mono.just(evaluation)
                 .zipWith(teamRepo.findById(evaluation.getTeamId()))
