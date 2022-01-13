@@ -72,6 +72,26 @@ public class EvaluationService {
 
     }
 
+    /**
+     * creates or updates depending on id sent in request, request is not accepted if userTeamsId, energy, production and/or well being are missing
+     * @param evaluation
+     * @return
+     */
+    @Transactional
+    public Mono<EvaluationResource> createOrUpdate(Evaluation evaluation){
+
+        return create(evaluation)
+                .onErrorResume(e->e instanceof IllegalArgumentException,
+                        response-> evaluationRepo.findTodayByUserTeamsId(evaluation.getUserTeamsId())
+                                .map(oldE->new Evaluation()
+                                        .setId(oldE.getId())
+                                        .setUserTeamsId(oldE.getUserTeamsId())
+                                        .setEnergy(evaluation.getEnergy())
+                                        .setProduction(evaluation.getProduction())
+                                        .setWellBeing(evaluation.getWellBeing()))
+                                .flatMap(this::update));
+    }
+
     public Flux<EvaluationResource> getAll() {
         return evaluationRepo.findAll().flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
     }

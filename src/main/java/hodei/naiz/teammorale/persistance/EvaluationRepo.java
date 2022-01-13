@@ -18,4 +18,6 @@ public interface EvaluationRepo extends R2dbcRepository<Evaluation,Long> {
     Mono<Boolean> evaluationExists(Long userTeamId, String date);
     @Query("SELECT * FROM evaluation WHERE date(created_date)=current_date AND team_id=(SELECT team_id FROM user_teams WHERE id=:userTeamsId) AND NOT user_id=(SELECT user_id FROM user_teams WHERE id=:userTeamsId)")
     Flux<Evaluation> findAllByDateAndTeamId(Long userTeamsId);
+    @Query("SELECT * FROM evaluation  WHERE date(created_date)=current_date AND user_teams_id=:userTeamsId;")
+    Mono<Evaluation> findTodayByUserTeamsId(Long userTeamsId);
 }

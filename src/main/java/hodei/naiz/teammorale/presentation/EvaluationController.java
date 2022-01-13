@@ -60,5 +60,10 @@ public class EvaluationController {
         return evaluationService.getByDateAndTeamId(userTeamsId);
 
     }
+    @PostMapping("/createOrUpdate/")
+    public Mono<ResponseEntity<EvaluationResource>> createOrUpdate(@RequestBody Evaluation evaluation){
+        return evaluationService.createOrUpdate(evaluation).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
 
 }
