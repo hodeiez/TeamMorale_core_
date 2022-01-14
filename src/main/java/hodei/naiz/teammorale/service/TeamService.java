@@ -67,7 +67,9 @@ public class TeamService {
     }
 
     /*extra operations*/
-
+    public Mono<TeamAndMembersResource> getOne(Long teamId){
+        return teamRepo.findById(teamId).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
+    }
        @Transactional
     public Mono<Long> addUserToTeam(Long userId, Long teamId) {
         return teamRepo.existsById(teamId).flatMap(teamExists -> teamExists ?

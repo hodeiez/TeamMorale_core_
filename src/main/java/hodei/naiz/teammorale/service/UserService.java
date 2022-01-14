@@ -7,6 +7,7 @@ import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -62,5 +63,12 @@ public class UserService {
     }
     public Mono<UserResource> login(UserLoginResource userlogin){
         return userRepo.findOneByEmailAndPassword(userlogin.getEmail(), userlogin.getPassword()).map(userMapper::toUserResource);
+    }
+    public Mono<UserResource> getByEmail(String email){
+        return userRepo.findOneByEmail(email).map(userMapper::toUserResource);
+    }
+//TODO: implement
+    public Mono<ResponseEntity<UserResource>> updateMe(String authorization, UserResource userResource) {
+        return null;
     }
 }

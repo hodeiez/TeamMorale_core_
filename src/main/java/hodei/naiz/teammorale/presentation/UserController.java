@@ -55,4 +55,12 @@ public class UserController {
         return userService.login(userlogin).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+    @GetMapping("/getMe")
+    public Mono<ResponseEntity<UserResource>> getMe(@RequestHeader(value="Authorization") String authorization){
+        return userService.getByEmail(authorization).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+    @PostMapping("/updateMe")
+    public Mono<ResponseEntity<UserResource>> updateMe(@RequestHeader(value="Authorization") String authorization, @RequestBody UserResource userResource){
+        return userService.updateMe(authorization,userResource);
+    }
 }

@@ -54,7 +54,12 @@ public class TeamController {
     public Flux<TeamAndMembersResource> getMyTeams(@RequestHeader(value="Authorization") String authorization){
         return teamService.getByEmail(authorization);
     }
-
+    @GetMapping("/id/{teamId}")
+    public Mono<ResponseEntity<TeamAndMembersResource>> getOneTeam (@PathVariable("teamId") Long teamId){
+        return teamService.getOne(teamId)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
     @PostMapping("/addUser/user/{userId}/team/{teamId}")
     public Mono<ResponseEntity<Long>> addUserToTeam (@PathVariable("userId") Long userId,@PathVariable("teamId") Long teamId){
         return teamService.addUserToTeam(userId,teamId)

@@ -3,6 +3,7 @@ package hodei.naiz.teammorale.presentation.mapper;
 import hodei.naiz.teammorale.domain.User;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  * Created by Hodei Eceiza
@@ -13,5 +14,6 @@ import org.mapstruct.Mapper;
  */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
     UserResource toUserResource(User user);
 }

@@ -1,8 +1,10 @@
 package hodei.naiz.teammorale.presentation.mapper.resources;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.With;
 
 import java.util.List;
@@ -26,4 +28,5 @@ public class TeamAndMembersResource {
     private String lastUpdateDate;
     private List<String> members;
     private Long userTeamsId;
+    private List<String> membersEmail;
 }
