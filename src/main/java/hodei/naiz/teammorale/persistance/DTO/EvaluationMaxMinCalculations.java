@@ -1,10 +1,8 @@
-package hodei.naiz.teammorale.domain;
+package hodei.naiz.teammorale.persistance.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * Created by Hodei Eceiza
@@ -13,9 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
  * Project: TeamMorale
  * Copyright: MIT
  */
-@Table
 @Data
-@Accessors(chain = true)
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EvaluationMaxMinCalculations {
@@ -26,5 +22,17 @@ public class EvaluationMaxMinCalculations {
     private int maxWellBeing;
     private int maxEnergy;
     private int maxProduction;
+    private int minProductionTeamId;
+    private int minEnergyTeamId;
+    private int minWellBeingTeamId;
+    private int minWellBeing;
+    private int minEnergy;
+    private int minProduction;
+    private String maxProductionTeamName;
+    private String maxEnergyTeamName;
+    private String maxWellBeingTeamName;
+    private String minProductionTeamName;
+    private String minEnergyTeamName;
+    private String minWellBeingTeamName;
 
 }

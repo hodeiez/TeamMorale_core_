@@ -1,7 +1,7 @@
 package hodei.naiz.teammorale.persistance;
 
 import hodei.naiz.teammorale.domain.Evaluation;
-import hodei.naiz.teammorale.domain.EvaluationCalculations;
+import hodei.naiz.teammorale.persistance.DTO.EvaluationCalculations;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Flux;

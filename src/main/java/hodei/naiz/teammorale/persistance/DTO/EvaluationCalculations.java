@@ -1,10 +1,8 @@
-package hodei.naiz.teammorale.domain;
+package hodei.naiz.teammorale.persistance.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
 
@@ -15,9 +13,8 @@ import java.time.LocalDate;
  * Project: TeamMorale
  * Copyright: MIT
  */
-@Table
+
 @Data
-@Accessors(chain = true)
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EvaluationCalculations {

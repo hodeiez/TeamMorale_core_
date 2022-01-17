@@ -1,14 +1,15 @@
 package hodei.naiz.teammorale.service;
 
 import hodei.naiz.teammorale.domain.Evaluation;
-import hodei.naiz.teammorale.domain.EvaluationCalculations;
 import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.domain.User;
+import hodei.naiz.teammorale.persistance.DTO.EvaluationCalculations;
 import hodei.naiz.teammorale.persistance.EvaluationRepo;
 import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.EvaluationMapper;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalculationsResource;
 import hodei.naiz.teammorale.service.notification.Topics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -138,7 +139,11 @@ public class EvaluationService {
     public Flux<EvaluationCalculations> getAllAverageOfDatesByTeam( Long teamId){
         return evaluationRepo.getAllAverageOfDatesByTeam(teamId);
     }
-
+    public Mono<UserEvaluationCalculationsResource> getUserEvaluationCalculations(Long userId){
+        return userRepo.getEvaluationsTeamAverageByDate(userId).collectList().
+                zipWith(userRepo.getEvaluationsMaxAndMin(userId))
+                .map(result->new UserEvaluationCalculationsResource(result.getT1(),result.getT2()));
+    }
 
 
     private Mono<Evaluation> getRelations(final Evaluation evaluation) {

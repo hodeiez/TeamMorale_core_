@@ -1,6 +1,7 @@
 package hodei.naiz.teammorale.presentation;
 
 import hodei.naiz.teammorale.domain.User;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalculationsResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import hodei.naiz.teammorale.service.UserService;
@@ -62,5 +63,9 @@ public class UserController {
     @PostMapping("/updateMe")
     public Mono<ResponseEntity<UserResource>> updateMe(@RequestHeader(value="Authorization") String authorization, @RequestBody UserResource userResource){
         return userService.updateMe(authorization,userResource);
+    }
+    @GetMapping("/getMyStats")
+    public Mono<ResponseEntity<UserEvaluationCalculationsResource>> getMyStats(@RequestHeader(value="Authorization") String authorization){
+        return userService.getByEmail(authorization).flatMap(u->userService.getMyEvaluationCalculations(authorization)).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

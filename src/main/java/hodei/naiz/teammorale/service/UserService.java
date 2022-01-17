@@ -1,8 +1,10 @@
 package hodei.naiz.teammorale.service;
 
 import hodei.naiz.teammorale.domain.User;
+import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.UserMapper;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalculationsResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 
@@ -27,6 +29,7 @@ import java.time.LocalDateTime;
 public class UserService {
     private final UserRepo userRepo;
     private final UserMapper userMapper;
+    private final TeamRepo teamRepo;
 
     @Transactional
     public Mono<UserResource> create(User user) {
@@ -71,4 +74,15 @@ public class UserService {
     public Mono<ResponseEntity<UserResource>> updateMe(String authorization, UserResource userResource) {
         return null;
     }
+
+    public Mono<UserEvaluationCalculationsResource> getMyEvaluationCalculations(String email){
+
+            return userRepo.findOneByEmail(email).flatMap(u->userRepo.getEvaluationsTeamAverageByDate(u.getId()).collectList().
+                    zipWith(userRepo.getEvaluationsMaxAndMin(u.getId()))
+                    .map(result->new UserEvaluationCalculationsResource(result.getT1(),result.getT2())));
+
+
+
+    }
+
 }
