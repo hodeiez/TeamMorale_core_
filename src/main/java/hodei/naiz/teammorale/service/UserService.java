@@ -70,11 +70,15 @@ public class UserService {
     public Mono<UserResource> getByEmail(String email){
         return userRepo.findOneByEmail(email).map(userMapper::toUserResource);
     }
-//TODO: implement
-    public Mono<ResponseEntity<UserResource>> updateMe(String authorization, UserResource userResource) {
-        return null;
-    }
 
+    public Mono<UserResource> updateMe(String authorization, User user) {
+
+        return userRepo.findOneByEmail(authorization).flatMap(u -> {
+            u.setUsername(user.getUsername());
+            u.setModifiedDate(LocalDateTime.now());
+            return userRepo.save(u).map(userMapper::toUserResource);
+        });
+    }
     public Mono<UserEvaluationCalculationsResource> getMyEvaluationCalculations(String email){
 
             return userRepo.findOneByEmail(email).flatMap(u->userRepo.getEvaluationsTeamAverageByDate(u.getId()).collectList().
