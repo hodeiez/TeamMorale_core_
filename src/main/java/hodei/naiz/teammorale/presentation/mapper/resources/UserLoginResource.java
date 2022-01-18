@@ -1,5 +1,6 @@
 package hodei.naiz.teammorale.presentation.mapper.resources;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
@@ -9,8 +10,10 @@ import lombok.Data;
  * Project: TeamMorale
  * Copyright: MIT
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class UserLoginResource {
     public String email;
     public String password;
+    public String oldPassword;
 }

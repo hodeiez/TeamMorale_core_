@@ -69,4 +69,9 @@ public class UserController {
     public Mono<ResponseEntity<UserEvaluationCalculationsResource>> getMyStats(@RequestHeader(value="Authorization") String authorization){
         return userService.getByEmail(authorization).flatMap(u->userService.getMyEvaluationCalculations(authorization)).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
     }
+    @PostMapping("/changePass")
+    public Mono<ResponseEntity<UserResource>> updateMe(@RequestHeader(value="Authorization") String authorization, @RequestBody UserLoginResource user){
+        return userService.changePass(authorization,user).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
 }

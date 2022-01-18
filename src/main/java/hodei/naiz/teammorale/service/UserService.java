@@ -85,8 +85,10 @@ public class UserService {
                     zipWith(userRepo.getEvaluationsMaxAndMin(u.getId()))
                     .map(result->new UserEvaluationCalculationsResource(result.getT1(),result.getT2())));
 
-
-
     }
-
+    public Mono<UserResource> changePass(String authorization, UserLoginResource creds){
+        return userRepo.findOneByEmail(authorization).flatMap(u->{if(u.getPassword().equals(creds.getOldPassword())){
+        u.setPassword(creds.getPassword()); return userRepo.save(u).map(userMapper::toUserResource);}return  Mono.error(new IllegalArgumentException("Old password didn't match")) ;
+        });
+    }
 }
