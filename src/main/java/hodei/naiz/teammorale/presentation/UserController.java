@@ -60,7 +60,7 @@ public class UserController {
     public Mono<ResponseEntity<UserResource>> getMe(@RequestHeader(value="Authorization") String authorization){
         return userService.getByEmail(authorization).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
     }
-    @PostMapping("/updateMe")
+    @PutMapping("/updateMe")
     public Mono<ResponseEntity<UserResource>> updateMe(@RequestHeader(value="Authorization") String authorization, @RequestBody User user){
         return userService.updateMe(authorization,user).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());

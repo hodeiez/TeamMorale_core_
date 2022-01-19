@@ -35,4 +35,5 @@ public interface EvaluationRepo extends R2dbcRepository<Evaluation,Long> {
             "stddev_pop(production) as production_dev,AVG(energy) as energy_avg, AVG(well_being) AS well_being_avg," +
             "AVG(production) AS production_avg,AVG(team_id) AS team_id FROM evaluation WHERE team_id=:teamId ")
     Mono<EvaluationCalculations> getTotalAverageByTeam(Long teamId);
+    Mono<Evaluation> deleteAllByTeamId(Long teamId);
 }

@@ -2,6 +2,7 @@ package hodei.naiz.teammorale.service;
 
 import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.domain.User;
+import hodei.naiz.teammorale.persistance.EvaluationRepo;
 import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.TeamMapper;
@@ -30,6 +31,7 @@ public class TeamService {
     private final TeamRepo teamRepo;
     private final TeamMapper teamMapper;
     private final UserRepo userRepo;
+    private final EvaluationRepo evaluationRepo;
 
     /*Basic CRUDs*/
     @Transactional
@@ -84,7 +86,7 @@ public class TeamService {
         return teamRepo.getAllByEmail(email).flatMap(t -> addUserTeamsIdToTeam(t, email)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
 
-    //TODO: we need to get the userTeamId, maybe get userId from request
+
     @Transactional
     public Mono<TeamAndMembersResource> addUsersToTeam(List<String> mails, Long teamId) {
 
@@ -106,6 +108,41 @@ public class TeamService {
 
     }
 
+
+    @Transactional
+    public Mono<TeamAndMembersResource> updateTeam(TeamUpdateResource teamUpdateResource) {
+        return teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
+            if (teamUpdateResource.getName() != null) return teamRepo.save(u.setName(teamUpdateResource.getName()));
+            return Mono.just(u);
+        }).flatMap(u -> {
+            if (teamUpdateResource.getMembersToRemove() != null) {
+                return Mono.just(teamUpdateResource.getMembersToRemove())
+                        .flatMapMany(Flux::fromIterable)
+                        .concatMap(email -> teamRepo.unsubscribeUserByEmail(u.getId(), email)).reduce((team, team2) -> team);
+            }
+            return Mono.just(u);
+        }).flatMap(u -> {
+            if (teamUpdateResource.getMembersToAdd() != null) {
+                return addUsersToTeam(teamUpdateResource.getMembersToAdd(), u.getId());
+            }
+            return Mono.just(u).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
+        });
+
+
+    }
+    @Transactional
+    public Mono<TeamResource> unsubscribeUserByEmail(String email, Long teamId) {
+        return teamRepo.unsubscribeUserByEmail(teamId, email).map(teamMapper::getResource);
+    }
+    //TODO: validate its the same user
+    @Transactional
+    public Mono<TeamResource> deleteTeamFull(String email,Long userTeamId) {
+        return teamRepo.getByUserTeamsId(userTeamId)
+                .flatMap(t -> evaluationRepo.deleteAllByTeamId(t.getId()))
+                .flatMap(e -> teamRepo.unsubscribeAll(e.getTeamId()))
+                .flatMap(team -> teamRepo.delete(team).then(Mono.just(team))).map(teamMapper::getResource);
+           }
+
     private Mono<Team> setUsersInTeam(Team team) {
         return Mono.just(team).zipWith(userRepo.findAllByTeamId(team.getId()).collectList(), Team::setMembers);
     }
@@ -116,38 +153,10 @@ public class TeamService {
         //   return Mono.just(team).zipWith(teamRepo.getUserTeamsId(userRepo.findOneByEmail(email),team.getId()),Team::setUserTeamsId);
     }
 
-    //@Transactional
+
     private Mono<Long> addUserToTeamWithEmail(String email, Long teamId) {
         return userRepo.findOneByEmail(email)
                 .flatMap(u -> addUserToTeam(u.getId(), teamId))
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
-    }
-
-    @Transactional
-    public Mono<TeamAndMembersResource> updateTeam(TeamUpdateResource teamUpdateResource) {
-        /*
-        1.-find team by userTeamID
-        2.-if membersToRemove !=null find each member and remove from userteams
-        3.-if membersToAdd !=null find each member and add if exists(send email)
-        4.-if not null change name
-         */
-        return teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
-            if (!teamUpdateResource.getName().isBlank()) return teamRepo.save(u.setName(teamUpdateResource.getName()));
-            return Mono.just(u);
-        }).flatMap(u -> {
-            if (!teamUpdateResource.getMembersToRemove().isEmpty()) {
-                return Mono.just(teamUpdateResource.getMembersToRemove())
-                        .flatMapMany(Flux::fromIterable)
-                        .concatMap(email -> teamRepo.unsubscribeUserByEmail(u.getId(), email)).reduce((team, team2) -> team);
-            }
-            return Mono.just(u);
-        }).flatMap(u -> {
-            if (!teamUpdateResource.getMembersToAdd().isEmpty()) {
-                return addUsersToTeam(teamUpdateResource.getMembersToAdd(), u.getId());
-            }
-            return Mono.just(u).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
-        });
-
-
     }
 }

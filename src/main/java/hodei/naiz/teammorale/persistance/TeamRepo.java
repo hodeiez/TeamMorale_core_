@@ -24,6 +24,8 @@ public interface TeamRepo extends R2dbcRepository<Team,Long> {
     Flux<Team> getAllByEmail(String email);
     @Query("SELECT id FROM user_teams WHERE user_id=:userId AND team_id=:teamId;")
     Mono<Long> getUserTeamsId(Long userId,Long teamId);
-    @Query("WITH deleted as (DELETE FROM user_teams WHERE user_id=(SELECT id FROM public.user WHERE email=:email) AND team_id=:teamId RETURNING team_id) SELECT * FROM team WHERE id=(SELECT team_id FROM deleted);")
+    @Query("WITH deleted as (DELETE FROM user_teams WHERE user_id=(SELECT id FROM public.user WHERE email=:email) AND team_id=:teamId RETURNING team_id), evaluationsdeleted as (DELETE FROM evaluation WHERE user_id=(SELECT id FROM public.user WHERE email=:email) AND team_id=:teamId RETURNING team_id) SELECT * FROM team WHERE id=(SELECT team_id FROM deleted);")
     Mono<Team> unsubscribeUserByEmail(Long teamId,String email);
+    @Query("WITH deleted AS(DELETE FROM user_teams WHERE team_id=:teamId RETURNING team_id)SELECT * FROM team WHERE id=(SELECT team_id FROM deleted);")
+    Mono<Team>unsubscribeAll(Long teamId);
 }

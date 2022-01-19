@@ -34,7 +34,6 @@ public interface UserRepo extends R2dbcRepository<User, Long> {
 
     @Query("SELECT date(created_date), ROUND(stddev_pop(energy),2) as energy_dev,ROUND(stddev_pop(well_being),2) as well_being_dev,ROUND(stddev_pop(production),2) as production_dev,ROUND(AVG(energy),2) as energy_avg, ROUND(AVG(well_being),2) AS well_being_avg,ROUND(AVG(production),2) AS production_avg FROM evaluation WHERE user_id=:userId group by date(created_date) order by date(created_date);")
     Flux<EvaluationCalculations> getEvaluationsTeamAverageByDate(Long userId);
-
     @Query("SELECT maxPR.user_id,\n" +
             "maxPR.team_id as max_production_team_id, maxPR.max as max_production,max_production_team_name,\n" +
             "maxEN.team_id as max_energy_team_id,maxEN.max as max_energy,max_energy_team_name,\n" +
