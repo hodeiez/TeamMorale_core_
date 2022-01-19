@@ -132,13 +132,11 @@ public class TeamService {
     }
     @Transactional
     public Mono<TeamResource> unsubscribeUserByEmail(String email, Long teamId) {
-        System.out.println(email + " " + teamId);
         return teamRepo.unsubscribeUserByEmail(teamId, email).map(teamMapper::getResource);
     }
     //TODO: validate its the same user
     @Transactional
     public Mono<TeamResource> deleteTeamFull(String email,Long userTeamId) {
-        System.out.println(email + " " + userTeamId);
         return teamRepo.getByUserTeamsId(userTeamId)
                 .flatMap(t -> teamRepo.unsubscribeAll(t.getId()))
                 .flatMap(team -> teamRepo.delete(team).then(Mono.just(team))).map(teamMapper::getResource);
