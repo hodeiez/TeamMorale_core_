@@ -84,11 +84,13 @@ public class TeamController {
     }
     @DeleteMapping("/unsubscribeMe/from/{teamId}")
     public Mono<ResponseEntity<TeamResource>> unsubscribeMe(@RequestHeader(value="Authorization") String authorization ,@PathVariable("teamId") Long teamId){
+
         return teamService.unsubscribeUserByEmail(authorization,teamId).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @DeleteMapping("/delete/full/userTeam/{userTeamId}")
     public Mono<ResponseEntity<TeamResource>> deleteFull(@RequestHeader(value="Authorization") String authorization ,@PathVariable("userTeamId") Long userTeamId){
+
         return teamService.deleteTeamFull(authorization,userTeamId).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
