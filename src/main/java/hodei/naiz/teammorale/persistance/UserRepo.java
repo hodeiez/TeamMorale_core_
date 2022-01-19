@@ -1,7 +1,7 @@
 package hodei.naiz.teammorale.persistance;
 
-import hodei.naiz.teammorale.persistance.DTO.EvaluationCalculations;
-import hodei.naiz.teammorale.persistance.DTO.EvaluationMaxMinCalculations;
+import hodei.naiz.teammorale.persistance.DAO.EvaluationCalculations;
+import hodei.naiz.teammorale.persistance.DAO.EvaluationMaxMinCalculations;
 import hodei.naiz.teammorale.domain.User;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;

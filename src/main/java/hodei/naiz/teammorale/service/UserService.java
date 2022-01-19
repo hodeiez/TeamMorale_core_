@@ -1,15 +1,12 @@
 package hodei.naiz.teammorale.service;
 
 import hodei.naiz.teammorale.domain.User;
-import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.UserMapper;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalculationsResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -29,7 +26,7 @@ import java.time.LocalDateTime;
 public class UserService {
     private final UserRepo userRepo;
     private final UserMapper userMapper;
-    private final TeamRepo teamRepo;
+
 
     @Transactional
     public Mono<UserResource> create(User user) {
@@ -60,14 +57,16 @@ public class UserService {
     @Transactional
     public Mono<UserResource> delete(Long id) {
 
-        return userRepo.findById(id).flatMap(u->userRepo.delete(u).then(Mono.just(u).map(userMapper::toUserResource)));
+        return userRepo.findById(id).flatMap(u -> userRepo.delete(u).then(Mono.just(u).map(userMapper::toUserResource)));
 
 
     }
-    public Mono<UserResource> login(UserLoginResource userlogin){
+
+    public Mono<UserResource> login(UserLoginResource userlogin) {
         return userRepo.findOneByEmailAndPassword(userlogin.getEmail(), userlogin.getPassword()).map(userMapper::toUserResource);
     }
-    public Mono<UserResource> getByEmail(String email){
+
+    public Mono<UserResource> getByEmail(String email) {
         return userRepo.findOneByEmail(email).map(userMapper::toUserResource);
     }
 
@@ -79,16 +78,22 @@ public class UserService {
             return userRepo.save(u).map(userMapper::toUserResource);
         });
     }
-    public Mono<UserEvaluationCalculationsResource> getMyEvaluationCalculations(String email){
 
-            return userRepo.findOneByEmail(email).flatMap(u->userRepo.getEvaluationsTeamAverageByDate(u.getId()).collectList().
-                    zipWith(userRepo.getEvaluationsMaxAndMin(u.getId()))
-                    .map(result->new UserEvaluationCalculationsResource(result.getT1(),result.getT2())));
+    public Mono<UserEvaluationCalculationsResource> getMyEvaluationCalculations(String email) {
+
+        return userRepo.findOneByEmail(email).flatMap(u -> userRepo.getEvaluationsTeamAverageByDate(u.getId()).collectList().
+                zipWith(userRepo.getEvaluationsMaxAndMin(u.getId()))
+                .map(result -> new UserEvaluationCalculationsResource(result.getT1(), result.getT2())));
 
     }
-    public Mono<UserResource> changePass(String authorization, UserLoginResource creds){
-        return userRepo.findOneByEmail(authorization).flatMap(u->{if(u.getPassword().equals(creds.getOldPassword())){
-        u.setPassword(creds.getPassword()); return userRepo.save(u).map(userMapper::toUserResource);}return  Mono.error(new IllegalArgumentException("Old password didn't match")) ;
+
+    public Mono<UserResource> changePass(String authorization, UserLoginResource creds) {
+        return userRepo.findOneByEmail(authorization).flatMap(u -> {
+            if (u.getPassword().equals(creds.getOldPassword())) {
+                u.setPassword(creds.getPassword());
+                return userRepo.save(u).map(userMapper::toUserResource);
+            }
+            return Mono.error(new IllegalArgumentException("Old password didn't match"));
         });
     }
 }

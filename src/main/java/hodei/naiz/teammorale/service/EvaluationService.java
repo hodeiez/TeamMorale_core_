@@ -3,7 +3,7 @@ package hodei.naiz.teammorale.service;
 import hodei.naiz.teammorale.domain.Evaluation;
 import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.domain.User;
-import hodei.naiz.teammorale.persistance.DTO.EvaluationCalculations;
+import hodei.naiz.teammorale.persistance.DAO.EvaluationCalculations;
 import hodei.naiz.teammorale.persistance.EvaluationRepo;
 import hodei.naiz.teammorale.persistance.TeamRepo;
 import hodei.naiz.teammorale.persistance.UserRepo;

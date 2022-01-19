@@ -1,8 +1,8 @@
 package hodei.naiz.teammorale.presentation.mapper.resources;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import hodei.naiz.teammorale.persistance.DTO.EvaluationCalculations;
-import hodei.naiz.teammorale.persistance.DTO.EvaluationMaxMinCalculations;
+import hodei.naiz.teammorale.persistance.DAO.EvaluationCalculations;
+import hodei.naiz.teammorale.persistance.DAO.EvaluationMaxMinCalculations;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package hodei.naiz.teammorale.persistance.DTO;
+package hodei.naiz.teammorale.persistance.DAO;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

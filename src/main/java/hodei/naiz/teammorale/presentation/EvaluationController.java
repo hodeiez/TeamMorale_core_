@@ -1,7 +1,7 @@
 package hodei.naiz.teammorale.presentation;
 
 import hodei.naiz.teammorale.domain.Evaluation;
-import hodei.naiz.teammorale.persistance.DTO.EvaluationCalculations;
+import hodei.naiz.teammorale.persistance.DAO.EvaluationCalculations;
 import hodei.naiz.teammorale.presentation.events.EvaluationSaved;
 import hodei.naiz.teammorale.presentation.events.Event;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;

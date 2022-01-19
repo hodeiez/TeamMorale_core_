@@ -3,6 +3,7 @@ package hodei.naiz.teammorale.presentation;
 import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
+import hodei.naiz.teammorale.presentation.mapper.resources.TeamUpdateResource;
 import hodei.naiz.teammorale.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -74,6 +75,11 @@ public class TeamController {
     @PostMapping("/createTeamWithEmails/")
     public Mono<ResponseEntity<TeamAndMembersResource>> createTeamWithEmails(@RequestBody TeamAndMembersResource team,@RequestHeader(value="Authorization") String authorization){
         return teamService.createWithUsers(team,authorization).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+    @PutMapping("/update")
+    public  Mono<ResponseEntity<TeamAndMembersResource>> updateTeam(@RequestBody TeamUpdateResource teamUpdateResource) {
+        return teamService.updateTeam(teamUpdateResource).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
