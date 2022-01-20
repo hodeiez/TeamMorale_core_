@@ -1,5 +1,6 @@
 package hodei.naiz.teammorale.service.publisher;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -15,7 +16,9 @@ import lombok.Data;
 public class EmailServiceMessage {
 
     private String to;
+
     private String message;
+
     private String username;
 
 }
