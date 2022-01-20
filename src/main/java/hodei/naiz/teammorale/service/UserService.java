@@ -7,6 +7,7 @@ import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalcula
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import hodei.naiz.teammorale.service.publisher.EmailServiceMessage;
+import hodei.naiz.teammorale.service.publisher.EmailType;
 import hodei.naiz.teammorale.service.publisher.PublisherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,15 @@ public class UserService {
     public Mono<UserResource> create(User user) {
         if (user.getId() != null)
             return Mono.error(new IllegalArgumentException("Id must be null"));
-        return userRepo.save(user).map(userMapper::toUserResource).doOnNext(u->publisherService.sendEmail(new EmailServiceMessage(u.getEmail(),"Created",u.getUsername())));
+        return userRepo.save(user).map(userMapper::toUserResource)
+                .doOnNext(u->publisherService.sendEmail(EmailServiceMessage.buildSignedUp()
+                                .username(u.getUsername())
+                                .to(u.getEmail())
+                                .confirmationToken("ImplementWhenSECURITY")
+                                .emailType(String.valueOf(EmailType.SIGNUP))
+                                .message("theMessage")
+                                .build()));
+
     }
 
     @Transactional
