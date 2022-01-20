@@ -1,0 +1,21 @@
+package hodei.naiz.teammorale.service.publisher;
+
+/**
+ * Created by Hodei Eceiza
+ * Date: 1/20/2022
+ * Time: 12:51
+ * Project: TeamMorale
+ * Copyright: MIT
+ */
+public enum EmailType {
+    SIGNUP("SIGNUP");
+    private final String value;
+    EmailType(String valueName) {
+        value=valueName;
+    }
+
+    @Override
+    public String toString() {
+        return  value;
+    }
+}
