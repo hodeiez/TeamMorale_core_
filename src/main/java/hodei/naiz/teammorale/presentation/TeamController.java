@@ -78,8 +78,8 @@ public class TeamController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @PutMapping("/update")
-    public  Mono<ResponseEntity<TeamAndMembersResource>> updateTeam(@RequestBody TeamUpdateResource teamUpdateResource) {
-        return teamService.updateTeam(teamUpdateResource).map(ResponseEntity::ok)
+    public  Mono<ResponseEntity<TeamAndMembersResource>> updateTeam(@RequestHeader(value="Authorization") String authorization,@RequestBody TeamUpdateResource teamUpdateResource) {
+        return teamService.updateTeam(authorization,teamUpdateResource).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @DeleteMapping("/unsubscribeMe/from/{teamId}")
