@@ -28,7 +28,7 @@ public class User {
     private Long id;
     private String username;
     private String email;
-    @Getter(onMethod_=@JsonIgnore)
+    /*@Getter(onMethod_=@JsonIgnore)*/
     private String password;
     @CreatedDate
     private LocalDateTime createdDate;

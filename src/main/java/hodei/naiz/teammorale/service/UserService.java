@@ -6,6 +6,8 @@ import hodei.naiz.teammorale.presentation.mapper.UserMapper;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalculationsResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
+import hodei.naiz.teammorale.service.publisher.EmailServiceMessage;
+import hodei.naiz.teammorale.service.publisher.PublisherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +28,14 @@ import java.time.LocalDateTime;
 public class UserService {
     private final UserRepo userRepo;
     private final UserMapper userMapper;
+    private final PublisherService publisherService;
 
 
     @Transactional
     public Mono<UserResource> create(User user) {
         if (user.getId() != null)
             return Mono.error(new IllegalArgumentException("Id must be null"));
-        return userRepo.save(user).map(userMapper::toUserResource);
+        return userRepo.save(user).map(userMapper::toUserResource).doOnNext(u->publisherService.sendEmail(new EmailServiceMessage(u.getEmail(),"Created",u.getUsername())));
     }
 
     @Transactional
