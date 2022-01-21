@@ -124,7 +124,7 @@ public class EvaluationService {
 
     }
 
-    //TODO: decide if validate today is today??
+
     public Flux<EvaluationResource> getByDateAndTeamId(Long userTeamsId) {
         return evaluationRepo.findAllByDateAndTeamId(userTeamsId).flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
     }

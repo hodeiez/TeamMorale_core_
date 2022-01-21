@@ -33,7 +33,6 @@ public class Team {
     private LocalDateTime createdDate;
     @LastModifiedDate
     private LocalDateTime modifiedDate;
-    //TODO: uncomment when user repo is done
     @Transient
     private List<User> members;
    @Transient

@@ -116,8 +116,8 @@ public class TeamService {
 
     @Transactional
     public Mono<TeamAndMembersResource> updateTeam(String email,TeamUpdateResource teamUpdateResource) {
-        return /* userRepo.userExistsInTeamWithUserTeamsAndEmail(teamUpdateResource.getUserTeamId(), email)
-                .flatMap(exists -> exists ? */teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
+        return  /*userRepo.userExistsInTeamWithUserTeamsAndEmail(teamUpdateResource.getUserTeamId(), email)
+                .flatMap(exists -> exists ?*/ teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
             if (teamUpdateResource.getName() != null) return teamRepo.save(u.setName(teamUpdateResource.getName()));
             return Mono.just(u);
         }).flatMap(u -> {
