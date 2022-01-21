@@ -6,7 +6,6 @@ import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamUpdateResource;
 import hodei.naiz.teammorale.service.TeamService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -79,7 +78,6 @@ public class TeamController {
     }
     @PutMapping("/update")
     public  Mono<ResponseEntity<TeamAndMembersResource>> updateTeam(@RequestHeader(value="Authorization") String authorization,@RequestBody TeamUpdateResource teamUpdateResource) {
-        System.out.println(teamUpdateResource.toString());
         return teamService.updateTeam(authorization,teamUpdateResource).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

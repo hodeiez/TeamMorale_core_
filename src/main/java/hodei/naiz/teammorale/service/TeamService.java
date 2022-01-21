@@ -16,11 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Created by Hodei Eceiza
@@ -116,8 +114,8 @@ public class TeamService {
 
     @Transactional
     public Mono<TeamAndMembersResource> updateTeam(String email,TeamUpdateResource teamUpdateResource) {
-        return  /*userRepo.userExistsInTeamWithUserTeamsAndEmail(teamUpdateResource.getUserTeamId(), email)
-                .flatMap(exists -> exists ?*/ teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
+        return  userRepo.userExistsInTeamWithUserTeamsAndEmail(teamUpdateResource.getUserTeamId(), email)
+                .flatMap(exists -> exists ? teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
             if (teamUpdateResource.getName() != null) return teamRepo.save(u.setName(teamUpdateResource.getName()));
             return Mono.just(u);
         }).flatMap(u -> {
@@ -132,7 +130,7 @@ public class TeamService {
                 return addUsersToTeam(teamUpdateResource.getMembersToAdd(), u.getId());
             }
             return Mono.just(u).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
-        });//: Mono.error(new IllegalArgumentException("This user has no access to this feature")));
+        }): Mono.error(new IllegalArgumentException("This user has no access to this feature")));
 
     }
 
