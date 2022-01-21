@@ -8,6 +8,7 @@ package hodei.naiz.teammorale.service.publisher;
  * Copyright: MIT
  */
 public enum EmailType {
+
     SIGNUP("Signed up"),FORGOT_PASS("forgotten password"),ADDED_TO_TEAM("added to team");
     private final String value;
     EmailType(String valueName) {

@@ -40,9 +40,9 @@ public class UserService {
                 .doOnNext(u->publisherService.sendEmail(EmailServiceMessage.buildSignedUp()
                                 .username(u.getUsername())
                                 .to(u.getEmail())
-                                .confirmationToken("ImplementWhenSECURITY")
-                                .emailType(String.valueOf(EmailType.SIGNUP))
-                                .message("theMessage")
+                                .confirmationToken("ImplementWhenSECURITY") //TODO: when security is done send token
+                                .emailType(EmailType.SIGNUP)
+                                .message("Message sent on "+ LocalDateTime.now().toLocalDate())
                                 .build()));
 
     }

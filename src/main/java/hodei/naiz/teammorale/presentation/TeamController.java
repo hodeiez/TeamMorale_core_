@@ -79,6 +79,7 @@ public class TeamController {
     }
     @PutMapping("/update")
     public  Mono<ResponseEntity<TeamAndMembersResource>> updateTeam(@RequestHeader(value="Authorization") String authorization,@RequestBody TeamUpdateResource teamUpdateResource) {
+        System.out.println(teamUpdateResource.toString());
         return teamService.updateTeam(authorization,teamUpdateResource).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

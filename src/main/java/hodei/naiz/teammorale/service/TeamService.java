@@ -8,14 +8,19 @@ import hodei.naiz.teammorale.presentation.mapper.TeamMapper;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamUpdateResource;
+import hodei.naiz.teammorale.service.publisher.EmailServiceMessage;
+import hodei.naiz.teammorale.service.publisher.EmailType;
+import hodei.naiz.teammorale.service.publisher.PublisherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Created by Hodei Eceiza
@@ -30,6 +35,7 @@ public class TeamService {
     private final TeamRepo teamRepo;
     private final TeamMapper teamMapper;
     private final UserRepo userRepo;
+    private final PublisherService publisherService;
 
 
     /*Basic CRUDs*/
@@ -76,24 +82,24 @@ public class TeamService {
     public Mono<Long> addUserToTeam(Long userId, Long teamId) {
         return teamRepo.existsById(teamId).flatMap(teamExists -> teamExists ?
                 userRepo.existsById(userId).flatMap(userExists -> userExists ?
-                        teamRepo.addUserToTeam(userId, teamId)
+                        teamRepo.addUserToTeam(userId, teamId)//.doOnSuccess(consume->{sendEmailsExistingUsers(userId,teamId);})
                         : Mono.error(new IllegalArgumentException("User doesn't exist")))
                 : Mono.error(new IllegalArgumentException("Team doesn't exist")));
     }
 
     public Flux<TeamAndMembersResource> getByEmail(String email) {
-        return teamRepo.getAllByEmail(email).flatMap(t -> addUserTeamsIdToTeam(t, email)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
+        return teamRepo.getAllByEmail(email).flatMap(t -> addUserTeamsIdToTeam(t, email))
+                .flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
 
 
     @Transactional
     public Mono<TeamAndMembersResource> addUsersToTeam(List<String> mails, Long teamId) {
-
+       mails.forEach(m->sendEmailsToNotExistingUser(m,teamId));
         return Flux.fromIterable(mails).concatMap(mail -> userRepo.findOneByEmail(mail)
                 .flatMap(u -> userRepo.userExistsInTeam(u.getId(), teamId)
-                        .flatMap(exists -> !exists ? addUserToTeam(u.getId(), teamId)
+                        .flatMap(isInTeam -> !isInTeam ? addUserToTeamWithEmail(mail, teamId)
                                 : Mono.just(u))))
-                //.concatMap(mail->addUserToTeamWithEmail(mail,teamId))
                 .then(teamRepo.findById(teamId)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
 
@@ -110,8 +116,8 @@ public class TeamService {
 
     @Transactional
     public Mono<TeamAndMembersResource> updateTeam(String email,TeamUpdateResource teamUpdateResource) {
-        return  userRepo.userExistsInTeamWithUserTeamsAndEmail(teamUpdateResource.getUserTeamId(), email)
-                .flatMap(exists -> exists ? teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
+        return /* userRepo.userExistsInTeamWithUserTeamsAndEmail(teamUpdateResource.getUserTeamId(), email)
+                .flatMap(exists -> exists ? */teamRepo.getByUserTeamsId(teamUpdateResource.getUserTeamId()).flatMap(u -> {
             if (teamUpdateResource.getName() != null) return teamRepo.save(u.setName(teamUpdateResource.getName()));
             return Mono.just(u);
         }).flatMap(u -> {
@@ -126,8 +132,7 @@ public class TeamService {
                 return addUsersToTeam(teamUpdateResource.getMembersToAdd(), u.getId());
             }
             return Mono.just(u).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
-        }): Mono.error(new IllegalArgumentException("This user has no access to this feature")));
-
+        });//: Mono.error(new IllegalArgumentException("This user has no access to this feature")));
 
     }
 
@@ -152,7 +157,6 @@ public class TeamService {
     private Mono<Team> addUserTeamsIdToTeam(Team team, String email) {
         return userRepo.findOneByEmail(email).map(User::getId)
                 .flatMap(u -> Mono.just(team).zipWith(teamRepo.getUserTeamsId(u, team.getId()), Team::setUserTeamsId));
-        //   return Mono.just(team).zipWith(teamRepo.getUserTeamsId(userRepo.findOneByEmail(email),team.getId()),Team::setUserTeamsId);
     }
 
 
@@ -161,4 +165,19 @@ public class TeamService {
                 .flatMap(u -> addUserToTeam(u.getId(), teamId))
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
     }
+
+    private void sendEmailsToNotExistingUser(String email, Long teamId){
+        Mono<User> user=userRepo.findOneByEmail(email).switchIfEmpty(Mono.just(new User()));
+        Mono<Team> team=teamRepo.findById(teamId);
+      user.zipWith(team).doOnNext(t->publisherService.sendEmail(EmailServiceMessage.buildAddedToTeam()
+                .to(email)
+                .username(t.getT1().getUsername()==null?email:t.getT1().getUsername())
+                .emailType(EmailType.ADDED_TO_TEAM)
+                .teamName(t.getT2().getName())
+                .message("if you weren't signed up when invited you need to ask to your team to be subscribed to the team again")
+                .build())).subscribe();
+
+    }
+
+
 }
