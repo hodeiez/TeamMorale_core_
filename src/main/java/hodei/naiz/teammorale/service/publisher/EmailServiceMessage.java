@@ -43,4 +43,14 @@ public class EmailServiceMessage {
         return emailService;
 
     }
+    @Builder(builderMethodName = "buildForgotPass",builderClassName = "BuildForgotPass")
+    public static EmailServiceMessage forgotPass(String to, String username, EmailType emailType, String message,String confirmationToken) {
+        EmailServiceMessage emailService = new EmailServiceMessage();
+        emailService.to = to;
+        emailService.username = username;
+        emailService.emailType = emailType;
+        emailService.message = message;
+        return emailService;
+
+    }
 }

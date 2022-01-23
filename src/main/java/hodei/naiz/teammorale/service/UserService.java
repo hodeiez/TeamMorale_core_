@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.time.LocalDateTime;
 
 /**
@@ -107,5 +108,16 @@ public class UserService {
             }
             return Mono.error(new IllegalArgumentException("Old password didn't match"));
         });
+    }
+    public Mono<String> forgotPass(String email){
+      return  userRepo.findOneByEmail(email)
+              .doOnSuccess(u->publisherService.sendEmail(EmailServiceMessage.buildForgotPass()
+                      .emailType(EmailType.FORGOT_PASS)
+                      .username(u.getUsername())
+                      .message("follow the instructions")
+                      .confirmationToken("to implement")
+                      .build()))
+              .map(u->"sent instructions to " +u.getEmail())
+              .switchIfEmpty(Mono.error(new UserPrincipalNotFoundException("user not found")));
     }
 }
