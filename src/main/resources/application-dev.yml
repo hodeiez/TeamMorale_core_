@@ -20,3 +20,7 @@ database:
   port: ${DATABASE_PORT}
   username: ${DATABASE_USER}
   password: ${DATABASE_PASS}
+security:
+  key: thekey
+  algorithm: algorithm
+  duration: 12304329
