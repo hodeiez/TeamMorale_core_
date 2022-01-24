@@ -1,8 +1,6 @@
 package hodei.naiz.teammorale.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.CreatedDate;
@@ -28,7 +26,6 @@ public class User {
     private Long id;
     private String username;
     private String email;
-    /*@Getter(onMethod_=@JsonIgnore)*/
     private String password;
     @CreatedDate
     private LocalDateTime createdDate;
