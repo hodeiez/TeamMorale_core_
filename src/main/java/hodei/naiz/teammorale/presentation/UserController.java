@@ -79,4 +79,9 @@ public class UserController {
         return userService.forgotPass(email).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+    @PostMapping("/resetPass")
+    public Mono<ResponseEntity<UserResource>> resetPass(@RequestHeader(value="Authorization") String passResetToken,@RequestBody UserLoginResource userLoginResource){
+        return userService.resetPass(passResetToken,userLoginResource).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
 }

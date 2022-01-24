@@ -32,7 +32,8 @@ public interface UserRepo extends R2dbcRepository<User, Long> {
     @Query("SELECT EXISTS(SELECT * FROM user_teams WHERE id=:userTeamsId AND user_id=(SELECT id FROM public.user WHERE email=:email));")
     Mono<Boolean> userExistsInTeamWithUserTeamsAndEmail(Long userTeamsId, String email);
     Mono<User> findOneByEmailAndPassword(String email, String password);
-
+    @Query("UPDATE public.user SET password = :password WHERE email = :email RETURNING *;")
+    Mono<User> updatePasswordByEmail(String email, String password);
     @Query("SELECT date(created_date), ROUND(stddev_pop(energy),2) as energy_dev,ROUND(stddev_pop(well_being),2) as well_being_dev,ROUND(stddev_pop(production),2) as production_dev,ROUND(AVG(energy),2) as energy_avg, ROUND(AVG(well_being),2) AS well_being_avg,ROUND(AVG(production),2) AS production_avg FROM evaluation WHERE user_id=:userId group by date(created_date) order by date(created_date);")
     Flux<EvaluationCalculations> getEvaluationsTeamAverageByDate(Long userId);
     @Query("SELECT maxPR.user_id,\n" +

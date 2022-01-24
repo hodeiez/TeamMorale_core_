@@ -110,14 +110,20 @@ public class UserService {
         });
     }
     public Mono<String> forgotPass(String email){
-      return  userRepo.findOneByEmail(email)
+      return  userRepo.findOneByEmail(email).switchIfEmpty(Mono.error(new IllegalArgumentException("user not found")))
               .doOnSuccess(u->publisherService.sendEmail(EmailServiceMessage.buildForgotPass()
                       .emailType(EmailType.FORGOT_PASS)
                       .username(u.getUsername())
                       .message("follow the instructions")
                       .confirmationToken("to implement")
+                      .to(email)
                       .build()))
-              .map(u->"sent instructions to " +u.getEmail())
-              .switchIfEmpty(Mono.error(new UserPrincipalNotFoundException("user not found")));
+              .map(u->"Instructions sent to " +u.getEmail());
+
+    }
+    public Mono<UserResource> resetPass(String resetPassToken,UserLoginResource userLoginResource){
+        //TODO: implement resetPassToken validation when security on
+        return resetPassToken.equals("to implement")?userRepo.updatePasswordByEmail(userLoginResource.getEmail(), userLoginResource.getPassword())
+                .map(userMapper::toUserResource):Mono.error(new IllegalArgumentException("error"));
     }
 }
