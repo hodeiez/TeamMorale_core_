@@ -74,7 +74,7 @@ public class UserController {
         return userService.changePass(authorization,user).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
-    @PostMapping("/forgotPass/email/{email}")
+    @GetMapping("forgotPass/email/{email}")
     public Mono<ResponseEntity<String>> forgotPass(@PathVariable("email") String email){
         return userService.forgotPass(email).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
