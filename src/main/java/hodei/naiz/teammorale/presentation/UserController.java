@@ -1,6 +1,7 @@
 package hodei.naiz.teammorale.presentation;
 
 import hodei.naiz.teammorale.domain.User;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserAuthResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalculationsResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
@@ -30,6 +31,7 @@ public class UserController {
         return userService.create(user);
     }
 
+
     @PutMapping
     public  Mono<ResponseEntity<UserResource>> update(@RequestBody User user) {
         return userService.update(user)
@@ -52,7 +54,7 @@ public class UserController {
     extra endpoints
      */
     @PostMapping("/login")
-    public Mono<ResponseEntity<UserResource>> login(@RequestBody UserLoginResource userlogin){
+    public Mono<ResponseEntity<UserAuthResource>> login(@RequestBody UserLoginResource userlogin){
         return userService.login(userlogin).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -84,4 +86,5 @@ public class UserController {
         return userService.resetPass(passResetToken,userLoginResource).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+
 }

@@ -3,6 +3,7 @@ package hodei.naiz.teammorale.service;
 import hodei.naiz.teammorale.domain.User;
 import hodei.naiz.teammorale.persistance.UserRepo;
 import hodei.naiz.teammorale.presentation.mapper.UserMapper;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserAuthResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalculationsResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
@@ -80,11 +81,12 @@ public class UserService {
 
     }
 
-    public Mono<UserResource> login(UserLoginResource userlogin) {
-        System.out.println(jWTissuer.createToken(new UserAuth(userlogin.getEmail(), userlogin.getPassword(),List.of("ROLE_USER"))));
+    public Mono<UserAuthResource> login(UserLoginResource userlogin) {
+        System.out.println();
         return userRepo.findOneByEmail(userlogin.getEmail())
                 .filter(u-> passwordEncoder.matches(userlogin.getPassword(), u.getPassword()))
-               .map(userMapper::toUserResource);
+               .map(user->userMapper.toUserAuth(user,jWTissuer.createToken(new UserAuth(userlogin.getEmail(), userlogin.getPassword(),List.of("ROLE_USER")
+               ))));
 
 
     }
