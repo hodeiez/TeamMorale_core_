@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
  * Project: TeamMorale
  * Copyright: MIT
  */
-@CrossOrigin
+
 @RestController
 @RequestMapping("team")
 @RequiredArgsConstructor
