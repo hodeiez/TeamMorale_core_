@@ -3,9 +3,14 @@ package hodei.naiz.teammorale.service.security;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Hodei Eceiza
@@ -19,10 +24,12 @@ import java.util.Collection;
 public class UserAuth implements UserDetails {
     private String userEmail;
     private String password;
-    private String authority;
+    private List<String> authorities;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+      return authorities.stream()
+              .map(SimpleGrantedAuthority::new)
+              .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
