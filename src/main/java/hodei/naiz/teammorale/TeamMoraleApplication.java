@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 
 
 @SpringBootApplication(exclude = {
-        RedisRepositoriesAutoConfiguration.class, SecurityAutoConfiguration.class,ReactiveSecurityAutoConfiguration.class})//TODO: take out to run security
+        RedisRepositoriesAutoConfiguration.class})//, SecurityAutoConfiguration.class,ReactiveSecurityAutoConfiguration.class})//TODO: take out to run security
 @EnableR2dbcAuditing
 public class TeamMoraleApplication {
 

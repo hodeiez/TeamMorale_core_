@@ -9,13 +9,17 @@ import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import hodei.naiz.teammorale.service.publisher.EmailServiceMessage;
 import hodei.naiz.teammorale.service.publisher.EmailType;
 import hodei.naiz.teammorale.service.publisher.PublisherService;
+import hodei.naiz.teammorale.service.security.JWTissuer;
+import hodei.naiz.teammorale.service.security.UserAuth;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Created by Hodei Eceiza
@@ -30,13 +34,15 @@ public class UserService {
     private final UserRepo userRepo;
     private final UserMapper userMapper;
     private final PublisherService publisherService;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTissuer jWTissuer;
 
 
     @Transactional
     public Mono<UserResource> create(User user) {
         if (user.getId() != null)
             return Mono.error(new IllegalArgumentException("Id must be null"));
-        return userRepo.save(user).map(userMapper::toUserResource)
+        return userRepo.save(user.withPassword(passwordEncoder.encode(user.getPassword()))).map(userMapper::toUserResource)
                 .doOnNext(u->publisherService.sendEmail(EmailServiceMessage.buildSignedUp()
                                 .username(u.getUsername())
                                 .to(u.getEmail())
@@ -75,7 +81,12 @@ public class UserService {
     }
 
     public Mono<UserResource> login(UserLoginResource userlogin) {
-        return userRepo.findOneByEmailAndPassword(userlogin.getEmail(), userlogin.getPassword()).map(userMapper::toUserResource);
+        System.out.println(jWTissuer.createToken(new UserAuth(userlogin.getEmail(), userlogin.getPassword(),List.of("ROLE_USER"))));
+        return userRepo.findOneByEmail(userlogin.getEmail())
+                .filter(u-> passwordEncoder.matches(userlogin.getPassword(), u.getPassword()))
+               .map(userMapper::toUserResource);
+
+
     }
 
     public Mono<UserResource> getByEmail(String email) {
