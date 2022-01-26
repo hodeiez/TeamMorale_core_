@@ -44,9 +44,15 @@ public class SecurityConfiguration {
                 .authenticationManager(reactiveAuthenticationManager)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(it -> it
-                        .pathMatchers("/team/**").authenticated()
                         .pathMatchers("/user/login").permitAll()
-                        .pathMatchers("/user/**").permitAll()
+                        .pathMatchers("/user/signup").permitAll()
+                        .pathMatchers("/evaluation/events").permitAll()
+
+                        .pathMatchers("/team/**").authenticated()
+                        .pathMatchers("/evaluation/**").authenticated()
+                        .pathMatchers("/user/**").authenticated()
+
+                        //.pathMatchers("/user/**").permitAll()
 
                         .anyExchange().permitAll()
                 )

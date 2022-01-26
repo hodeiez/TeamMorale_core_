@@ -6,6 +6,7 @@ import hodei.naiz.teammorale.presentation.events.EvaluationSaved;
 import hodei.naiz.teammorale.presentation.events.Event;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;
 import hodei.naiz.teammorale.service.EvaluationService;
+import hodei.naiz.teammorale.service.security.JWTissuer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class EvaluationController {
     private final EvaluationService evaluationService;
+    private final JWTissuer jwTissuer;
 
     @PostMapping
     public Mono<ResponseEntity<EvaluationResource>> create(@RequestBody Evaluation evaluation) {
@@ -52,9 +54,10 @@ public class EvaluationController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @GetMapping(value = "events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Event> listenToEvents(@RequestParam("userTeamId") String userTeamId) {
-        return evaluationService.listenSaved(Long.parseLong(userTeamId))
-                .map(EvaluationSaved::new);
+    public Flux<Event> listenToEvents(@RequestParam("userTeamId") String userTeamId,@RequestParam("auth")String authorization) {
+       return jwTissuer.validateToken(authorization.substring(7))?
+       evaluationService.listenSaved(Long.parseLong(userTeamId))
+                .map(EvaluationSaved::new):null;
     }
     @GetMapping("/myTeamToday/{userTeamsId}")
     public Flux<EvaluationResource> getByTeamIdToday( @PathVariable("userTeamsId") Long userTeamsId) {

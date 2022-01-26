@@ -54,6 +54,11 @@ public class UserController {
     /*
     extra endpoints
      */
+    @PostMapping("/signup")
+    public Mono<ResponseEntity<UserResource>> signUp(@RequestBody User user) {
+        return userService.create(user).map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
     @PostMapping("/login")
     public Mono<ResponseEntity<UserAuthResource>> login(@RequestBody UserLoginResource userlogin){
         return userService.login(userlogin).map(ResponseEntity::ok)
