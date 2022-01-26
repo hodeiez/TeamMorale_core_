@@ -4,6 +4,7 @@ import hodei.naiz.teammorale.domain.Evaluation;
 import hodei.naiz.teammorale.persistance.DAO.EvaluationCalculations;
 import hodei.naiz.teammorale.presentation.events.EvaluationSaved;
 import hodei.naiz.teammorale.presentation.events.Event;
+import hodei.naiz.teammorale.presentation.events.UnauthorizedEvent;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;
 import hodei.naiz.teammorale.service.EvaluationService;
 import hodei.naiz.teammorale.service.security.JWTissuer;
@@ -57,7 +58,7 @@ public class EvaluationController {
     public Flux<Event> listenToEvents(@RequestParam("userTeamId") String userTeamId,@RequestParam("auth")String authorization) {
        return jwTissuer.validateToken(authorization.substring(7))?
        evaluationService.listenSaved(Long.parseLong(userTeamId))
-                .map(EvaluationSaved::new):null;
+                .map(EvaluationSaved::new):Flux.just(new UnauthorizedEvent("unauthorized"));
     }
     @GetMapping("/myTeamToday/{userTeamsId}")
     public Flux<EvaluationResource> getByTeamIdToday( @PathVariable("userTeamsId") Long userTeamsId) {

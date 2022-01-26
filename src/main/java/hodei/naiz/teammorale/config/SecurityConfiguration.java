@@ -72,7 +72,7 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         configuration.setMaxAge(3600L);
         configuration.applyPermitDefaultValues();
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
