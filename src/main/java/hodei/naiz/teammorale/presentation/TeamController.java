@@ -51,10 +51,8 @@ public class TeamController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     /*extra endpoints*/
-    //TODO: adapt when security is on
     @GetMapping("/myTeams/")
     public Flux<TeamAndMembersResource> getMyTeams(@RequestHeader(value="Authorization") String authorization){
-        System.out.println(jwTissuer.getUserEmail(authorization));
         return teamService.getByEmail(jwTissuer.getUserEmail(authorization));
     }
     @GetMapping("/id/{teamId}")
@@ -76,24 +74,24 @@ public class TeamController {
     }
     @PostMapping("/createTeamWithEmails/")
     public Mono<ResponseEntity<TeamAndMembersResource>> createTeamWithEmails(@RequestBody TeamAndMembersResource team,@RequestHeader(value="Authorization") String authorization){
-        return teamService.createWithUsers(team,authorization).map(ResponseEntity::ok)
+        return teamService.createWithUsers(team,jwTissuer.getUserEmail(authorization)).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @PutMapping("/update")
     public  Mono<ResponseEntity<TeamAndMembersResource>> updateTeam(@RequestHeader(value="Authorization") String authorization,@RequestBody TeamUpdateResource teamUpdateResource) {
-        return teamService.updateTeam(authorization,teamUpdateResource).map(ResponseEntity::ok)
+        return teamService.updateTeam(jwTissuer.getUserEmail(authorization),teamUpdateResource).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @DeleteMapping("/unsubscribeMe/from/{teamId}")
     public Mono<ResponseEntity<TeamResource>> unsubscribeMe(@RequestHeader(value="Authorization") String authorization ,@PathVariable("teamId") Long teamId){
 
-        return teamService.unsubscribeUserByEmail(authorization,teamId).map(ResponseEntity::ok)
+        return teamService.unsubscribeUserByEmail(jwTissuer.getUserEmail(authorization),teamId).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @DeleteMapping("/delete/full/userTeam/{userTeamId}")
     public Mono<ResponseEntity<TeamResource>> deleteFull(@RequestHeader(value="Authorization") String authorization ,@PathVariable("userTeamId") Long userTeamId){
 
-        return teamService.deleteTeamFull(authorization,userTeamId).map(ResponseEntity::ok)
+        return teamService.deleteTeamFull(jwTissuer.getUserEmail(authorization),userTeamId).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 

@@ -46,7 +46,7 @@ public class SecurityConfiguration {
                 .authorizeExchange(it -> it
                         .pathMatchers("/team/**").authenticated()
                         .pathMatchers("/user/login").permitAll()
-                        .pathMatchers("/user").permitAll()
+                        .pathMatchers("/user/**").permitAll()
 
                         .anyExchange().permitAll()
                 )

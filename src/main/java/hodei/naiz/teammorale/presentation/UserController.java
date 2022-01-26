@@ -6,6 +6,7 @@ import hodei.naiz.teammorale.presentation.mapper.resources.UserEvaluationCalcula
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import hodei.naiz.teammorale.service.UserService;
+import hodei.naiz.teammorale.service.security.JWTissuer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
+    private final JWTissuer jwTissuer;
     @PostMapping
     public Mono<UserResource> create(@RequestBody User user) {
         return userService.create(user);
@@ -60,20 +61,21 @@ public class UserController {
     }
     @GetMapping("/getMe")
     public Mono<ResponseEntity<UserResource>> getMe(@RequestHeader(value="Authorization") String authorization){
-        return userService.getByEmail(authorization).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
+        return userService.getByEmail(jwTissuer.getUserEmail(authorization)).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @PutMapping("/updateMe")
     public Mono<ResponseEntity<UserResource>> updateMe(@RequestHeader(value="Authorization") String authorization, @RequestBody User user){
-        return userService.updateMe(authorization,user).map(ResponseEntity::ok)
+        return userService.updateMe(jwTissuer.getUserEmail(authorization),user).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @GetMapping("/getMyStats")
     public Mono<ResponseEntity<UserEvaluationCalculationsResource>> getMyStats(@RequestHeader(value="Authorization") String authorization){
-        return userService.getByEmail(authorization).flatMap(u->userService.getMyEvaluationCalculations(authorization)).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
+        return userService.getByEmail(jwTissuer.getUserEmail(authorization))
+                .flatMap(u->userService.getMyEvaluationCalculations(jwTissuer.getUserEmail(authorization))).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @PostMapping("/changePass")
     public Mono<ResponseEntity<UserResource>> updateMe(@RequestHeader(value="Authorization") String authorization, @RequestBody UserLoginResource user){
-        return userService.changePass(authorization,user).map(ResponseEntity::ok)
+        return userService.changePass(jwTissuer.getUserEmail(authorization),user).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @GetMapping("forgotPass/email/{email}")
