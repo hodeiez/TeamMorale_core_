@@ -82,11 +82,10 @@ public class UserService {
     }
 
     public Mono<UserAuthResource> login(UserLoginResource userlogin) {
-        System.out.println();
+
         return userRepo.findOneByEmail(userlogin.getEmail())
                 .filter(u-> passwordEncoder.matches(userlogin.getPassword(), u.getPassword()))
-               .map(user->userMapper.toUserAuth(user,jWTissuer.createToken(new UserAuth(userlogin.getEmail(), userlogin.getPassword(),List.of("ROLE_USER")
-               ))));
+               .map(user->userMapper.toUserAuth(user,jWTissuer.createTokenWhenLogin(userlogin)));
 
 
     }

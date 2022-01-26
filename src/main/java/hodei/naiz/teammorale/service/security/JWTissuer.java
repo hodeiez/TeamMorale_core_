@@ -1,5 +1,7 @@
 package hodei.naiz.teammorale.service.security;
 
+import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
+import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -58,12 +61,12 @@ public class JWTissuer {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        System.out.println("before authorities");
+
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get("Authority").toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
-        System.out.println(authorities);
+
         User principal = new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
@@ -82,5 +85,10 @@ public class JWTissuer {
 
         return false;
     }
-
+    public String getUserEmail(String token){
+        return getAuthentication(token.substring(7)).getName();
+    }
+    public String createTokenWhenLogin(UserLoginResource userLogin){
+        return createToken(new UserAuth(userLogin.getEmail(), userLogin.getPassword(), List.of("ROLE_USER")));
+    }
 }

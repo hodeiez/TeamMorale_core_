@@ -5,6 +5,7 @@ import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResourc
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamUpdateResource;
 import hodei.naiz.teammorale.service.TeamService;
+import hodei.naiz.teammorale.service.security.JWTissuer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class TeamController {
     private final TeamService teamService;
+    private final JWTissuer jwTissuer;
 
     @PostMapping
     public Mono<TeamResource> create(@RequestBody Team team) {
@@ -52,8 +54,8 @@ public class TeamController {
     //TODO: adapt when security is on
     @GetMapping("/myTeams/")
     public Flux<TeamAndMembersResource> getMyTeams(@RequestHeader(value="Authorization") String authorization){
-        System.out.println(authorization);
-        return teamService.getByEmail(authorization);
+        System.out.println(jwTissuer.getUserEmail(authorization));
+        return teamService.getByEmail(jwTissuer.getUserEmail(authorization));
     }
     @GetMapping("/id/{teamId}")
     public Mono<ResponseEntity<TeamAndMembersResource>> getOneTeam (@PathVariable("teamId") Long teamId){
