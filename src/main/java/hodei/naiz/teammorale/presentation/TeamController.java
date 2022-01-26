@@ -52,6 +52,7 @@ public class TeamController {
     //TODO: adapt when security is on
     @GetMapping("/myTeams/")
     public Flux<TeamAndMembersResource> getMyTeams(@RequestHeader(value="Authorization") String authorization){
+        System.out.println(authorization);
         return teamService.getByEmail(authorization);
     }
     @GetMapping("/id/{teamId}")

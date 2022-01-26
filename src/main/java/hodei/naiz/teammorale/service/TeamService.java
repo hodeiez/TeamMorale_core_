@@ -14,6 +14,7 @@ import hodei.naiz.teammorale.service.publisher.PublisherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,6 +28,7 @@ import java.util.List;
  * Project: TeamMorale
  * Copyright: MIT
  */
+@CrossOrigin
 @Service
 @RequiredArgsConstructor
 public class TeamService {

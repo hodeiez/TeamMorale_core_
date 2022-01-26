@@ -58,12 +58,12 @@ public class JWTissuer {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
+        System.out.println("before authorities");
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("authorities").toString().split(","))
+                Arrays.stream(claims.get("Authority").toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
-
+        System.out.println(authorities);
         User principal = new org.springframework.security.core.userdetails.User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
