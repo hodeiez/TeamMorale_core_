@@ -252,6 +252,13 @@ databaseChangeLog:
                   type: boolean
                   constraints:
                     #nullable: false
-
+  - changeSet:
+      id: 10-alter-user-table-change-email-to-unique
+      author: hodei
+      changes:
+        - addUniqueConstraint:
+            schemaName: public
+            tableName: user
+            columnNames: email
 
 

@@ -28,6 +28,6 @@ public class ReactiveUserDetailsServiceImpl implements ReactiveUserDetailsServic
         return userRepo.findOneByEmail(email)
                 .filter(Objects::nonNull)
                 .switchIfEmpty(Mono.error(new BadCredentialsException("Not found in database")))
-                .map(user->new UserAuth(user.getEmail(), user.getPassword(), List.of("ROLE_USER"), user.isVerified())); //TODO:fix when database is implemented
+                .map(user->new UserAuth(user.getEmail(), user.getPassword(), List.of("ROLE_USER"), user.isVerified()));
     }
 }

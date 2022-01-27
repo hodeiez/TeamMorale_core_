@@ -41,11 +41,12 @@ public class UserService {
     public Mono<UserResource> create(User user) {
         if (user.getId() != null)
             return Mono.error(new IllegalArgumentException("Id must be null"));
-        return userRepo.save(user.withPassword(passwordEncoder.encode(user.getPassword()))).map(userMapper::toUserResource)
+        return userRepo.save(user.withPassword(passwordEncoder.encode(user.getPassword())))
+                .map(userMapper::toUserResource)
                 .doOnNext(u->publisherService.sendEmail(EmailServiceMessage.buildSignedUp()
                                 .username(u.getUsername())
                                 .to(u.getEmail())
-                                .confirmationToken("Bearer "+jWTutil.createVerifyAccountToken(user)) //TODO: when security is done send token
+                                .confirmationToken("Bearer "+jWTutil.createVerifyAccountToken(user))
                                 .emailType(EmailType.SIGNUP)
                                 .message("Message sent on "+ LocalDateTime.now().toLocalDate())
                                 .build()));
