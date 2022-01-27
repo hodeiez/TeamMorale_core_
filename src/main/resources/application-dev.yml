@@ -1,22 +1,19 @@
 spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog.yaml
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL_JDBC}
     user: ${DATABASE_USER}
     password: ${DATABASE_PASS}
     default-schema: public
     enabled: true
     drop-first: false
   r2dbc:
-    url: ${DATABASE_URL}
+    url:  ${DATABASE_URL_R2DBC}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASS}
   redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
-  data:
-    rest:
-      base-path: /api
 database:
   name: ${DATABASE_NAME}
   host: ${DATABASE_HOST}
