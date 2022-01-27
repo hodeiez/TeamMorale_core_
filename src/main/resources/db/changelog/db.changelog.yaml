@@ -228,7 +228,27 @@ databaseChangeLog:
                     onDelete: CASCADE
 
   - changeSet:
-      id: 08-add-mock-data
+      id: 08-alter-user-table-add-verified
+      author: hodei
+      changes:
+        - addColumn:
+            tableName: user
+            columns:
+                    - column:
+              name: verified
+              type: boolean
+              constraints:
+            #nullable: false
+  - changeSet:
+      id: 09-alter-user-table-change-email-to-unique
+      author: hodei
+      changes:
+        - addUniqueConstraint:
+            schemaName: public
+            tableName: user
+            columnNames: email
+  - changeSet:
+      id: 10-add-mock-data
       author: hodei
       dbms: '!h2' #Specifies the type of a database for which that changeset will be used. When the migration step is running, it checks the database type against this attribute.
       changes:
@@ -240,25 +260,5 @@ databaseChangeLog:
             encoding: utf-8
             splitStatements: false
             path: db/mockdata/insert_teams.sql
-  - changeSet:
-      id: 09-alter-user-table-add-verified
-      author: hodei
-      changes:
-        - addColumn:
-            tableName: user
-            columns:
-              - column:
-                  name: verified
-                  type: boolean
-                  constraints:
-                    #nullable: false
-  - changeSet:
-      id: 10-alter-user-table-change-email-to-unique
-      author: hodei
-      changes:
-        - addUniqueConstraint:
-            schemaName: public
-            tableName: user
-            columnNames: email
 
 
