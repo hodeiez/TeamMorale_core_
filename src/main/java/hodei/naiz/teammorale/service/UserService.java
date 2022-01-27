@@ -112,9 +112,10 @@ public class UserService {
     }
 
     public Mono<UserResource> changePass(String authorization, UserLoginResource creds) {
+
         return userRepo.findOneByEmail(authorization).flatMap(u -> {
-            if (u.getPassword().equals(creds.getOldPassword())) {
-                u.setPassword(creds.getPassword());
+            if (passwordEncoder.matches(creds.getOldPassword(),u.getPassword())) {
+                u.setPassword(passwordEncoder.encode(creds.getPassword()));
                 return userRepo.save(u).map(userMapper::toUserResource);
             }
             return Mono.error(new IllegalArgumentException("Old password didn't match"));
