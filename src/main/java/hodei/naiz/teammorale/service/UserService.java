@@ -127,15 +127,15 @@ public class UserService {
                       .emailType(EmailType.FORGOT_PASS)
                       .username(u.getUsername())
                       .message("follow the instructions")
-                      .confirmationToken("to implement")
+                      .confirmationToken(jWTissuer.createTokenFromUser(u))
                       .to(email)
                       .build()))
               .map(u->"Instructions sent to " +u.getEmail());
 
     }
     public Mono<UserResource> resetPass(String resetPassToken,UserLoginResource userLoginResource){
-        //TODO: implement resetPassToken validation when security on
-        return resetPassToken.equals("to implement")?userRepo.updatePasswordByEmail(userLoginResource.getEmail(), userLoginResource.getPassword())
+
+        return jWTissuer.validateToken(resetPassToken.substring(7))?userRepo.updatePasswordByEmail(userLoginResource.getEmail(), userLoginResource.getPassword())
                 .map(userMapper::toUserResource):Mono.error(new IllegalArgumentException("error"));
     }
 }

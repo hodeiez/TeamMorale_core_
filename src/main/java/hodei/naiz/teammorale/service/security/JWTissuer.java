@@ -91,4 +91,7 @@ public class JWTissuer {
     public String createTokenWhenLogin(UserLoginResource userLogin){
         return createToken(new UserAuth(userLogin.getEmail(), userLogin.getPassword(), List.of("ROLE_USER")));
     }
+    public String createTokenFromUser(hodei.naiz.teammorale.domain.User user){
+        return createToken(new UserAuth(user.getEmail(), user.getPassword(), List.of("ROLE_USER")));
+    }
 }

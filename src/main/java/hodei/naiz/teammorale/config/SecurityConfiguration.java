@@ -47,6 +47,8 @@ public class SecurityConfiguration {
                         .pathMatchers("/user/login").permitAll()
                         .pathMatchers("/user/signup").permitAll()
                         .pathMatchers("/evaluation/events").permitAll()
+                        .pathMatchers("/user/forgotPass/**").permitAll()
+                        .pathMatchers("/user/resetPass/**").permitAll()
 
                         .pathMatchers("/team/**").authenticated()
                         .pathMatchers("/evaluation/**").authenticated()

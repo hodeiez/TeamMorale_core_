@@ -23,6 +23,7 @@ public class UserAuth implements UserDetails {
     private String userEmail;
     private String password;
     private List<String> authorities;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
       return authorities.stream()
@@ -57,6 +58,6 @@ public class UserAuth implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;//TODO: check this when building DB.
+        return false;//TODO: check this when building DB.
     }
 }

@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 @Component
 @AllArgsConstructor
 @Qualifier
-public class JWTAuthenticationFilter implements ReactiveAuthenticationManager {
+public class JWTAuthenticationManager implements ReactiveAuthenticationManager {
     private final ReactiveUserDetailsServiceImpl userDetailsService;
 
 
