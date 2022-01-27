@@ -24,8 +24,8 @@ database:
   username: ${DATABASE_USER}
   password: ${DATABASE_PASS}
 security:
-  key: '*F-J@NcRfUjXn2r5u8x/A?D(G+KbPdSgVkYp3s6v9y$B&E)H@McQfThWmZq4t7w!'
-  algorithm: HS512
-  duration: 12304329
+  key: ${SECURITY_KEY}
+  algorithm: ${SECURITY_ALGORITHM}
+  duration: ${SECURITY_DURATION}
 client:
-  baseUrl: http://localhost:3000
+  baseUrl: ${CLIENT_BASE_URL}
