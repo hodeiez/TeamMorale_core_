@@ -2,6 +2,7 @@ package hodei.naiz.teammorale.config;
 
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
+import io.r2dbc.postgresql.client.SSLMode;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -44,7 +45,7 @@ public class R2dbcConfiguration extends AbstractR2dbcConfiguration {
                 .port(port)
                 .username(username)
                 .password(password)
-                .database(database)//.sslMode(SSLMode.REQUIRE) //TODO: uncomment for HEROKU
+                .database(database).sslMode(SSLMode.REQUIRE) //TODO: uncomment for HEROKU
                 .build());
 
 
