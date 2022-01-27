@@ -10,8 +10,7 @@ import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import hodei.naiz.teammorale.service.publisher.EmailServiceMessage;
 import hodei.naiz.teammorale.service.publisher.EmailType;
 import hodei.naiz.teammorale.service.publisher.PublisherService;
-import hodei.naiz.teammorale.service.security.JWTissuer;
-import hodei.naiz.teammorale.service.security.UserAuth;
+import hodei.naiz.teammorale.service.security.JWTutil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Created by Hodei Eceiza
@@ -36,7 +34,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final PublisherService publisherService;
     private final PasswordEncoder passwordEncoder;
-    private final JWTissuer jWTissuer;
+    private final JWTutil jWTutil;
 
 
     @Transactional
@@ -47,7 +45,7 @@ public class UserService {
                 .doOnNext(u->publisherService.sendEmail(EmailServiceMessage.buildSignedUp()
                                 .username(u.getUsername())
                                 .to(u.getEmail())
-                                .confirmationToken("ImplementWhenSECURITY") //TODO: when security is done send token
+                                .confirmationToken("Bearer "+jWTutil.createVerifyAccountToken(user)) //TODO: when security is done send token
                                 .emailType(EmailType.SIGNUP)
                                 .message("Message sent on "+ LocalDateTime.now().toLocalDate())
                                 .build()));
@@ -84,8 +82,8 @@ public class UserService {
     public Mono<UserAuthResource> login(UserLoginResource userlogin) {
 
         return userRepo.findOneByEmail(userlogin.getEmail())
-                .filter(u-> passwordEncoder.matches(userlogin.getPassword(), u.getPassword()))
-               .map(user->userMapper.toUserAuth(user,jWTissuer.createTokenWhenLogin(userlogin)));
+                .filter(u-> passwordEncoder.matches(userlogin.getPassword(), u.getPassword())).filter(User::isVerified).switchIfEmpty(Mono.error(new IllegalArgumentException("not verified")))
+               .map(user->userMapper.toUserAuth(user, jWTutil.createTokenWhenLogin(userlogin)));
 
 
     }
@@ -122,12 +120,12 @@ public class UserService {
         });
     }
     public Mono<String> forgotPass(String email){
-      return  userRepo.findOneByEmail(email).switchIfEmpty(Mono.error(new IllegalArgumentException("user not found")))
+      return  userRepo.findOneByEmail(email).filter(User::isVerified).switchIfEmpty(Mono.error(new IllegalArgumentException("user not found or account not verified")))
               .doOnSuccess(u->publisherService.sendEmail(EmailServiceMessage.buildForgotPass()
                       .emailType(EmailType.FORGOT_PASS)
                       .username(u.getUsername())
                       .message("follow the instructions")
-                      .confirmationToken(jWTissuer.createTokenFromUser(u))
+                      .confirmationToken(jWTutil.createTokenFromUser(u))
                       .to(email)
                       .build()))
               .map(u->"Instructions sent to " +u.getEmail());
@@ -135,7 +133,10 @@ public class UserService {
     }
     public Mono<UserResource> resetPass(String resetPassToken,UserLoginResource userLoginResource){
 
-        return jWTissuer.validateToken(resetPassToken.substring(7))?userRepo.updatePasswordByEmail(userLoginResource.getEmail(), userLoginResource.getPassword())
+        return jWTutil.validateToken(resetPassToken.substring(7))?userRepo.updatePasswordByEmail(userLoginResource.getEmail(), passwordEncoder.encode(userLoginResource.getPassword()))
                 .map(userMapper::toUserResource):Mono.error(new IllegalArgumentException("error"));
+    }
+    public Mono<UserResource> verifyAccount(String token){
+       return userRepo.setVerified(jWTutil.getUserEmail(token)).map(userMapper::toUserResource);
     }
 }

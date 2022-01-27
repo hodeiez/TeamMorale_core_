@@ -240,5 +240,18 @@ databaseChangeLog:
             encoding: utf-8
             splitStatements: false
             path: db/mockdata/insert_teams.sql
+  - changeSet:
+      id: 09-alter-user-table-add-verified
+      author: hodei
+      changes:
+        - addColumn:
+            tableName: user
+            columns:
+              - column:
+                  name: verified
+                  type: boolean
+                  constraints:
+                    #nullable: false
+
 
 

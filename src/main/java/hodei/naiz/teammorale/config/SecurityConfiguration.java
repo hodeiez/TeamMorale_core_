@@ -1,8 +1,9 @@
 package hodei.naiz.teammorale.config;
 
 import hodei.naiz.teammorale.service.security.JWTTokenAuthenticationFilter;
-import hodei.naiz.teammorale.service.security.JWTissuer;
+import hodei.naiz.teammorale.service.security.JWTutil;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -32,10 +33,10 @@ import java.util.Arrays;
 @EnableWebFluxSecurity
 @AllArgsConstructor
 public class SecurityConfiguration {
-
+   private WebAppProperties webAppProperties;
     @Bean
     SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http,
-                                                JWTissuer tokenProvider,
+                                                JWTutil tokenProvider,
                                                 ReactiveAuthenticationManager reactiveAuthenticationManager) {
 
 
@@ -49,12 +50,12 @@ public class SecurityConfiguration {
                         .pathMatchers("/evaluation/events").permitAll()
                         .pathMatchers("/user/forgotPass/**").permitAll()
                         .pathMatchers("/user/resetPass/**").permitAll()
+                        .pathMatchers("/user/verifyMe").permitAll()
 
                         .pathMatchers("/team/**").authenticated()
                         .pathMatchers("/evaluation/**").authenticated()
                         .pathMatchers("/user/**").authenticated()
 
-                        //.pathMatchers("/user/**").permitAll()
 
                         .anyExchange().permitAll()
                 )
@@ -73,7 +74,7 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList(webAppProperties.getClientUrl()));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         configuration.setMaxAge(3600L);
         configuration.applyPermitDefaultValues();

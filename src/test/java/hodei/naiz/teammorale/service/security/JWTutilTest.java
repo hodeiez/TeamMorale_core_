@@ -1,24 +1,11 @@
 package hodei.naiz.teammorale.service.security;
 
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 
-import javax.crypto.spec.SecretKeySpec;
-
-import java.time.Duration;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Hodei Eceiza
@@ -28,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * Copyright: MIT
  */
 
-class JWTissuerTest {
+class JWTutilTest {
 
 
-   private JWTissuer jwtIssuer;
+   private JWTutil jwtIssuer;
 
 
 
@@ -41,13 +28,13 @@ class JWTissuerTest {
         jwtProperties.setAlgorithm("HS512");
         jwtProperties.setKey("*F-J@NcRfUjXn2r5u8x/A?D(G+KbPdSgVkYp3s6v9y$B&E)H@McQfThWmZq4t7w!");
         jwtProperties.setDuration(10);
-        jwtIssuer=new JWTissuer(jwtProperties);
+        jwtIssuer=new JWTutil(jwtProperties);
 
     }
 
     @Test
     void itShouldValidateToken() {
-        String actual = jwtIssuer.createToken(new UserAuth("name", "password", List.of("ROLE_USER")));
+        String actual = jwtIssuer.createToken(new UserAuth("name", "password", List.of("ROLE_USER"),true));
         Assertions.assertTrue(jwtIssuer.validateToken(actual));
 
         String fail="not.a.token";

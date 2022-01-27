@@ -27,3 +27,5 @@ security:
   key: '*F-J@NcRfUjXn2r5u8x/A?D(G+KbPdSgVkYp3s6v9y$B&E)H@McQfThWmZq4t7w!'
   algorithm: HS512
   duration: 12304329
+client:
+  baseUrl: http://localhost:3000

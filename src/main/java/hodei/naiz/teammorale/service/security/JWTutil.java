@@ -1,7 +1,6 @@
 package hodei.naiz.teammorale.service.security;
 
 import hodei.naiz.teammorale.presentation.mapper.resources.UserLoginResource;
-import hodei.naiz.teammorale.presentation.mapper.resources.UserResource;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
@@ -32,20 +31,20 @@ import java.util.stream.Collectors;
  */
 @Component
 @AllArgsConstructor
-public class JWTissuer {
-    private final Logger log = LoggerFactory.getLogger(JWTissuer.class);
+public class JWTutil {
+    private final Logger log = LoggerFactory.getLogger(JWTutil.class);
     private final JWTproperties jwtProperties;
 
 
     public String createToken(UserAuth user){
 
-        return Jwts.builder()
+        return user.isEnabled()?Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("Authority",user.getAuthorities())
                 .signWith(jwtProperties.getKey())
                 .setIssuedAt(Date.from(Instant.now()))
                 .setExpiration(Date.from(Instant.now().plus(Duration.ofMinutes(jwtProperties.getDuration()))))
-                .compact();
+                .compact():null;
 
 
     }
@@ -89,9 +88,12 @@ public class JWTissuer {
         return getAuthentication(token.substring(7)).getName();
     }
     public String createTokenWhenLogin(UserLoginResource userLogin){
-        return createToken(new UserAuth(userLogin.getEmail(), userLogin.getPassword(), List.of("ROLE_USER")));
+        return createToken(new UserAuth(userLogin.getEmail(), userLogin.getPassword(), List.of("ROLE_USER"),true));
     }
     public String createTokenFromUser(hodei.naiz.teammorale.domain.User user){
-        return createToken(new UserAuth(user.getEmail(), user.getPassword(), List.of("ROLE_USER")));
+        return createToken(new UserAuth(user.getEmail(), user.getPassword(), List.of("ROLE_USER"),user.isVerified()));
+    }
+    public String createVerifyAccountToken(hodei.naiz.teammorale.domain.User user){
+        return createToken(new UserAuth(user.getEmail(),user.getPassword(),List.of("ROLE_USER"),true));
     }
 }

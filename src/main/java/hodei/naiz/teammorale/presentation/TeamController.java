@@ -5,7 +5,7 @@ import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResourc
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamUpdateResource;
 import hodei.naiz.teammorale.service.TeamService;
-import hodei.naiz.teammorale.service.security.JWTissuer;
+import hodei.naiz.teammorale.service.security.JWTutil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class TeamController {
     private final TeamService teamService;
-    private final JWTissuer jwTissuer;
+    private final JWTutil jwTutil;
 
     @PostMapping
     public Mono<TeamResource> create(@RequestBody Team team) {
@@ -53,7 +53,7 @@ public class TeamController {
     /*extra endpoints*/
     @GetMapping("/myTeams/")
     public Flux<TeamAndMembersResource> getMyTeams(@RequestHeader(value="Authorization") String authorization){
-        return teamService.getByEmail(jwTissuer.getUserEmail(authorization));
+        return teamService.getByEmail(jwTutil.getUserEmail(authorization));
     }
     @GetMapping("/id/{teamId}")
     public Mono<ResponseEntity<TeamAndMembersResource>> getOneTeam (@PathVariable("teamId") Long teamId){
@@ -74,24 +74,24 @@ public class TeamController {
     }
     @PostMapping("/createTeamWithEmails/")
     public Mono<ResponseEntity<TeamAndMembersResource>> createTeamWithEmails(@RequestBody TeamAndMembersResource team,@RequestHeader(value="Authorization") String authorization){
-        return teamService.createWithUsers(team,jwTissuer.getUserEmail(authorization)).map(ResponseEntity::ok)
+        return teamService.createWithUsers(team, jwTutil.getUserEmail(authorization)).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @PutMapping("/update")
     public  Mono<ResponseEntity<TeamAndMembersResource>> updateTeam(@RequestHeader(value="Authorization") String authorization,@RequestBody TeamUpdateResource teamUpdateResource) {
-        return teamService.updateTeam(jwTissuer.getUserEmail(authorization),teamUpdateResource).map(ResponseEntity::ok)
+        return teamService.updateTeam(jwTutil.getUserEmail(authorization),teamUpdateResource).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @DeleteMapping("/unsubscribeMe/from/{teamId}")
     public Mono<ResponseEntity<TeamResource>> unsubscribeMe(@RequestHeader(value="Authorization") String authorization ,@PathVariable("teamId") Long teamId){
 
-        return teamService.unsubscribeUserByEmail(jwTissuer.getUserEmail(authorization),teamId).map(ResponseEntity::ok)
+        return teamService.unsubscribeUserByEmail(jwTutil.getUserEmail(authorization),teamId).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @DeleteMapping("/delete/full/userTeam/{userTeamId}")
     public Mono<ResponseEntity<TeamResource>> deleteFull(@RequestHeader(value="Authorization") String authorization ,@PathVariable("userTeamId") Long userTeamId){
 
-        return teamService.deleteTeamFull(jwTissuer.getUserEmail(authorization),userTeamId).map(ResponseEntity::ok)
+        return teamService.deleteTeamFull(jwTutil.getUserEmail(authorization),userTeamId).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 

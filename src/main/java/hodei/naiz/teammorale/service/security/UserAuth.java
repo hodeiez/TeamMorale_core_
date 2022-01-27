@@ -2,6 +2,7 @@ package hodei.naiz.teammorale.service.security;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,13 +18,14 @@ import java.util.stream.Collectors;
  * Project: TeamMorale
  * Copyright: MIT
  */
+@With
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserAuth implements UserDetails {
     private String userEmail;
     private String password;
     private List<String> authorities;
-
+    private boolean verified;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
       return authorities.stream()
@@ -58,6 +60,6 @@ public class UserAuth implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return false;//TODO: check this when building DB.
+        return verified;
     }
 }

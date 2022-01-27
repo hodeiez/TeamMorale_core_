@@ -35,4 +35,5 @@ public class User {
     private LocalDateTime createdDate;
     @LastModifiedDate
     private LocalDateTime modifiedDate;
+    private boolean verified;
 }

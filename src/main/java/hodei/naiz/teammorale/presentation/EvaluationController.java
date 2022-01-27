@@ -7,7 +7,7 @@ import hodei.naiz.teammorale.presentation.events.Event;
 import hodei.naiz.teammorale.presentation.events.UnauthorizedEvent;
 import hodei.naiz.teammorale.presentation.mapper.resources.EvaluationResource;
 import hodei.naiz.teammorale.service.EvaluationService;
-import hodei.naiz.teammorale.service.security.JWTissuer;
+import hodei.naiz.teammorale.service.security.JWTutil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class EvaluationController {
     private final EvaluationService evaluationService;
-    private final JWTissuer jwTissuer;
+    private final JWTutil jwTutil;
 
     @PostMapping
     public Mono<ResponseEntity<EvaluationResource>> create(@RequestBody Evaluation evaluation) {
@@ -56,7 +56,7 @@ public class EvaluationController {
     }
     @GetMapping(value = "events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Event> listenToEvents(@RequestParam("userTeamId") String userTeamId,@RequestParam("auth")String authorization) {
-       return jwTissuer.validateToken(authorization.substring(7))?
+       return jwTutil.validateToken(authorization.substring(7))?
        evaluationService.listenSaved(Long.parseLong(userTeamId))
                 .map(EvaluationSaved::new):Flux.just(new UnauthorizedEvent("unauthorized"));
     }

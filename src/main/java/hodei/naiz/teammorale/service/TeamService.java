@@ -11,7 +11,6 @@ import hodei.naiz.teammorale.presentation.mapper.resources.TeamUpdateResource;
 import hodei.naiz.teammorale.service.publisher.EmailServiceMessage;
 import hodei.naiz.teammorale.service.publisher.EmailType;
 import hodei.naiz.teammorale.service.publisher.PublisherService;
-import hodei.naiz.teammorale.service.security.JWTissuer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
