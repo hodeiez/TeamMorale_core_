@@ -6,7 +6,7 @@ spring:
     password: ${DATABASE_PASS}
     default-schema: public
     enabled: true
-    drop-first: false
+    drop-first: true
   r2dbc:
     url:  ${DATABASE_URL_R2DBC}
     username: ${DATABASE_USER}
