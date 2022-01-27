@@ -234,10 +234,10 @@ databaseChangeLog:
         - addColumn:
             tableName: user
             columns:
-                    - column:
-              name: verified
-              type: boolean
-              constraints:
+              - column:
+                  name: verified
+                  type: boolean
+                  constraints:
             #nullable: false
   - changeSet:
       id: 09-alter-user-table-change-email-to-unique
