@@ -140,4 +140,7 @@ public class UserService {
     public Mono<UserResource> verifyAccount(String token){
        return userRepo.setVerified(jWTutil.getUserEmail(token)).map(userMapper::toUserResource);
     }
+    public Mono<Void> deleteMe(String authorization){
+        return userRepo.deleteByEmail(jWTutil.getUserEmail(authorization));
+    }
 }

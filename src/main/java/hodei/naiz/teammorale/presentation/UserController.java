@@ -95,9 +95,12 @@ public class UserController {
     }
     @GetMapping("/verifyMe")
     public Mono<ResponseEntity<UserResource>> verifyUser(@RequestHeader(value="Authorization") String authorization){
-        System.out.println(authorization);
         return userService.verifyAccount(authorization).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+    @DeleteMapping("/deleteMe")
+    public Mono<String> deleteME(@RequestHeader(value="authorization") String authorization){
+        return userService.deleteMe(authorization).then(Mono.just("User deleted"));
     }
 
 }

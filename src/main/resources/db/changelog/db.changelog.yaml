@@ -146,9 +146,9 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: false
-                    foreignKeyName: FK_team_id
-                    references: team(id)
-                    onDelete: CASCADE
+                   # foreignKeyName: FK_team_id
+                   # references: team(id)
+                   # onDelete: CASCADE
         - addForeignKeyConstraint:
             baseColumnNames: user_id
             baseTableName: evaluation
@@ -156,6 +156,13 @@ databaseChangeLog:
             referencedTableName: user
             onDelete: CASCADE
             constraintName: FK_user_id
+        - addForeignKeyConstraint:
+            baseColumnNames: team_id
+            baseTableName: evaluation
+            referencedColumnNames: id
+            referencedTableName: team
+            onDelete: CASCADE
+            constraintName: FK_team_id
   - changeSet:
       id: 06-create-user-teams
       author: hodei
@@ -180,18 +187,18 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: false
-                    foreignKeyName: FK_team_id
-                    references: team(id)
-                    onDelete: CASCADE
+                   # foreignKeyName: FK_team_id
+                   # references: team(id)
+                   # onDelete: CASCADE
 
               - column:
                   name: user_id
                   type: int
                   constraints:
                     nullable: false
-                    foreignKeyName: FK_user_id
-                    references: user(id)
-                    onDelete: CASCADE
+                   # foreignKeyName: FK_user_id
+                   # references: user(id)
+                   # onDelete: CASCADE
 
 
               - column:
@@ -211,6 +218,20 @@ databaseChangeLog:
             columnNames: user_id, team_id
             tableName: user_teams
             constraintName: PK_user_teams
+        - addForeignKeyConstraint:
+            baseColumnNames: team_id
+            baseTableName: user_teams
+            referencedColumnNames: id
+            referencedTableName: team
+            onDelete: CASCADE
+            constraintName: FK_team_id
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_teams
+            referencedColumnNames: id
+            referencedTableName: user
+            onDelete: CASCADE
+            constraintName: FK_user_id
   - changeSet:
       id: 07-alter-evaluation-table-add-userTeams
       author: hodei
@@ -223,9 +244,16 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: false
-                    foreignKeyName: FK_user_teams_id
-                    references: user_teams(id)
-                    onDelete: CASCADE
+                   # foreignKeyName: FK_user_teams_id
+                   # references: user_teams(id)
+                   # onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseColumnNames: user_teams_id
+            baseTableName: evaluation
+            referencedColumnNames: id
+            referencedTableName: user_teams
+            onDelete: CASCADE
+            constraintName: FK_user_teams_id
 
   - changeSet:
       id: 08-alter-user-table-add-verified

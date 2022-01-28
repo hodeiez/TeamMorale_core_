@@ -36,7 +36,6 @@ class JWTutilTest {
     void itShouldValidateToken() {
         String actual = jwtIssuer.createToken(new UserAuth("name", "password", List.of("ROLE_USER"),true));
         Assertions.assertTrue(jwtIssuer.validateToken(actual));
-
         String fail="not.a.token";
         Assertions.assertFalse(jwtIssuer.validateToken(fail));
         Assertions.assertEquals(((User)jwtIssuer.getAuthentication(actual).getPrincipal()).getUsername(),"name");
