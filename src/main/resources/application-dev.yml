@@ -11,6 +11,7 @@ spring:
     url:  ${DATABASE_URL_R2DBC}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASS}
+
   redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
@@ -26,3 +27,4 @@ security:
   duration: ${SECURITY_DURATION}
 client:
   baseUrl: ${CLIENT_BASE_URL}
+

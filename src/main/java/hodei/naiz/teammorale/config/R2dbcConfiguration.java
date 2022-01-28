@@ -45,7 +45,7 @@ public class R2dbcConfiguration extends AbstractR2dbcConfiguration {
                 .port(port)
                 .username(username)
                 .password(password)
-                .database(database).sslMode(SSLMode.REQUIRE) //TODO: uncomment for HEROKU
+                .database(database)//.sslMode(SSLMode.REQUIRE) //TODO: Heroku needs, so, we need to apply locally
                 .build());
 
 
