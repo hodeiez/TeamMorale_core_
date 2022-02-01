@@ -10,7 +10,6 @@ import hodei.naiz.teammorale.service.security.JWTutil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -27,33 +26,8 @@ import reactor.core.publisher.Mono;
 public class UserController {
     private final UserService userService;
     private final JWTutil jwTutil;
-    @PostMapping
-    public Mono<UserResource> create(@RequestBody User user) {
-        return userService.create(user);
-    }
 
 
-    @PutMapping
-    public  Mono<ResponseEntity<UserResource>> update(@RequestBody User user) {
-        return userService.update(user)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public Flux<UserResource> getAll() {
-        return userService.getAll();
-    }
-
-    @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<UserResource>> deleteById(@PathVariable("id") Long id) {
-        return userService.delete(id)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-    /*
-    extra endpoints
-     */
     @PostMapping("/signup")
     public Mono<ResponseEntity<UserResource>> signUp(@RequestBody User user) {
         return userService.create(user).map(ResponseEntity::ok)
@@ -79,7 +53,7 @@ public class UserController {
                 .flatMap(u->userService.getMyEvaluationCalculations(jwTutil.getUserEmail(authorization))).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
     }
     @PostMapping("/changePass")
-    public Mono<ResponseEntity<UserResource>> updateMe(@RequestHeader(value="Authorization") String authorization, @RequestBody UserLoginResource user){
+    public Mono<ResponseEntity<UserResource>> updateMyPass(@RequestHeader(value="Authorization") String authorization, @RequestBody UserLoginResource user){
         return userService.changePass(jwTutil.getUserEmail(authorization),user).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

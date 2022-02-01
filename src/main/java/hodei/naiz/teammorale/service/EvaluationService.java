@@ -94,20 +94,9 @@ public class EvaluationService {
                                 .flatMap(this::update));
     }
 
-    public Flux<EvaluationResource> getAll() {
-        return evaluationRepo.findAll().flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
-    }
-
-    @Transactional
-    public Mono<EvaluationResource> delete(Long id) {
-
-        return evaluationRepo.findById(id)
-                .flatMap(e->evaluationRepo.delete(e)
-                        .then(Mono.just(e).flatMap(this::getRelations)
-                                .map(evaluationMapper::toEvaluationResource)));
 
 
-    }
+
 
     /**
      * get User id and Team id from userTeamsId, then listen to notification and return as evaluationResource
@@ -157,5 +146,19 @@ public class EvaluationService {
         LocalDateTime today = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return today.format(formatter);
+    }
+
+    @Transactional
+    public Mono<EvaluationResource> delete(Long id) {
+
+        return evaluationRepo.findById(id)
+                .flatMap(e->evaluationRepo.delete(e)
+                        .then(Mono.just(e).flatMap(this::getRelations)
+                                .map(evaluationMapper::toEvaluationResource)));
+
+
+    }
+    public Flux<EvaluationResource> getAll() {
+        return evaluationRepo.findAll().flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
     }
 }

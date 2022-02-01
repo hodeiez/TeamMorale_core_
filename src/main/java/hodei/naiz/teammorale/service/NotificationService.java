@@ -73,7 +73,18 @@ public class NotificationService {
                     }
                 });
     }
+    public void unListen(final Topics topic) {
+        if (!watchedTopics.contains(topic)) {
+            synchronized (watchedTopics) {
+                if (!watchedTopics.contains(topic)) {
+                    logger.info("unsubscribing from  topic");
+                    watchedTopics.add(topic);
+                    unListenStatement(topic);
 
+                }
+            }
+        }
+    }
     @PreDestroy
     private void preDestroy() {
 
@@ -82,6 +93,11 @@ public class NotificationService {
 
     private void listenStatement(final Topics topic) {
         getConnection().createStatement(String.format("LISTEN \"%s\"", topic)).execute().subscribe();
+    }
+
+    private void unListenStatement(final Topics topic){
+        getConnection().createStatement(String.format("UNLISTEN \"%s\"", topic)).execute().subscribe();
+
     }
 
     @PostConstruct

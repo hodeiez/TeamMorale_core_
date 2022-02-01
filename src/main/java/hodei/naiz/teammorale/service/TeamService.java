@@ -37,44 +37,6 @@ public class TeamService {
     private final UserRepo userRepo;
     private final PublisherService publisherService;
 
-
-
-    /*Basic CRUDs*/
-    @Transactional
-    public Mono<TeamResource> create(Team team) {
-        if (team.getId() != null)
-            return Mono.error(new IllegalArgumentException("Id must be null"));
-        return teamRepo.save(team).map(teamMapper::getResource);
-    }
-
-    @Transactional
-    public Mono<TeamResource> update(Team team) {
-        if (team.getId() != null) {
-            return teamRepo.findById(team.getId())
-                    .flatMap(t -> {
-                        t.setName(team.getName());
-                        t.setModifiedDate(LocalDateTime.now());
-                        return teamRepo.save(t).map(teamMapper::getResource);
-                    });
-
-        }
-        return Mono.error(new IllegalArgumentException("Need an Id to update a team"));
-
-    }
-
-    public Flux<TeamResource> getAll() {
-        return teamRepo.findAll().map(teamMapper::getResource);
-    }
-
-    @Transactional
-    public Mono<TeamResource> delete(Long id) {
-        return teamRepo.findById(id)
-                .flatMap(t -> teamRepo.delete(t)
-                        .then(Mono.just(t)
-                                .map(teamMapper::getResource)));
-    }
-
-    /*extra operations*/
     public Mono<TeamAndMembersResource> getOne(Long teamId) {
         return teamRepo.findById(teamId).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
@@ -180,5 +142,38 @@ public class TeamService {
 
     }
 
+    /*Basic CRUDs*/
+    @Transactional
+    public Mono<TeamResource> create(Team team) {
+        if (team.getId() != null)
+            return Mono.error(new IllegalArgumentException("Id must be null"));
+        return teamRepo.save(team).map(teamMapper::getResource);
+    }
 
+    @Transactional
+    public Mono<TeamResource> update(Team team) {
+        if (team.getId() != null) {
+            return teamRepo.findById(team.getId())
+                    .flatMap(t -> {
+                        t.setName(team.getName());
+                        t.setModifiedDate(LocalDateTime.now());
+                        return teamRepo.save(t).map(teamMapper::getResource);
+                    });
+
+        }
+        return Mono.error(new IllegalArgumentException("Need an Id to update a team"));
+
+    }
+
+    public Flux<TeamResource> getAll() {
+        return teamRepo.findAll().map(teamMapper::getResource);
+    }
+
+    @Transactional
+    public Mono<TeamResource> delete(Long id) {
+        return teamRepo.findById(id)
+                .flatMap(t -> teamRepo.delete(t)
+                        .then(Mono.just(t)
+                                .map(teamMapper::getResource)));
+    }
 }
