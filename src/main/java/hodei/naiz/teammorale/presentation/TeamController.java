@@ -1,6 +1,5 @@
 package hodei.naiz.teammorale.presentation;
 
-import hodei.naiz.teammorale.domain.Team;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamAndMembersResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamResource;
 import hodei.naiz.teammorale.presentation.mapper.resources.TeamUpdateResource;

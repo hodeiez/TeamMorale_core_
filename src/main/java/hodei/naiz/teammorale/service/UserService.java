@@ -53,32 +53,6 @@ public class UserService {
 
     }
 
-    @Transactional
-    public Mono<UserResource> update(User user) {
-        if (user.getId() != null) {
-            return userRepo.findById(user.getId())
-                    .flatMap(u -> {
-                        u.setUsername(user.getUsername());
-                        u.setModifiedDate(LocalDateTime.now());
-                        return userRepo.save(u).map(userMapper::toUserResource);
-                    });
-
-        }
-        return Mono.error(new IllegalArgumentException("Need an Id to update a user"));
-
-    }
-
-    public Flux<UserResource> getAll() {
-        return userRepo.findAll().map(userMapper::toUserResource);
-    }
-
-    @Transactional
-    public Mono<UserResource> delete(Long id) {
-
-        return userRepo.findById(id).flatMap(u -> userRepo.delete(u).then(Mono.just(u).map(userMapper::toUserResource)));
-
-
-    }
 
     public Mono<UserAuthResource> login(UserLoginResource userlogin) {
 
@@ -142,5 +116,32 @@ public class UserService {
     }
     public Mono<Void> deleteMe(String authorization){
         return userRepo.deleteByEmail(jWTutil.getUserEmail(authorization));
+    }
+
+    @Transactional
+    public Mono<UserResource> update(User user) {
+        if (user.getId() != null) {
+            return userRepo.findById(user.getId())
+                    .flatMap(u -> {
+                        u.setUsername(user.getUsername());
+                        u.setModifiedDate(LocalDateTime.now());
+                        return userRepo.save(u).map(userMapper::toUserResource);
+                    });
+
+        }
+        return Mono.error(new IllegalArgumentException("Need an Id to update a user"));
+
+    }
+
+    public Flux<UserResource> getAll() {
+        return userRepo.findAll().map(userMapper::toUserResource);
+    }
+
+    @Transactional
+    public Mono<UserResource> delete(Long id) {
+
+        return userRepo.findById(id).flatMap(u -> userRepo.delete(u).then(Mono.just(u).map(userMapper::toUserResource)));
+
+
     }
 }

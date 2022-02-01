@@ -7,7 +7,7 @@ import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
 
 
 @SpringBootApplication(exclude = {
-        RedisRepositoriesAutoConfiguration.class})//, SecurityAutoConfiguration.class,ReactiveSecurityAutoConfiguration.class})//TODO: take out to run security
+        RedisRepositoriesAutoConfiguration.class})
 @EnableR2dbcAuditing
 public class TeamMoraleApplication {
 
