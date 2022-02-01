@@ -37,8 +37,8 @@ public class EvaluationService {
     private final NotificationService notificationService;
 
     /**
-     * Creates an evaluation, if there is no an evaluation with same userTeamId and date.
-     * @param evaluation
+     * Creates an evaluation, if there is no an evaluation with same userTeamId on same date.
+     * @param evaluation its expected to be without an id.
      * @return evaluation mapped (id,user name,team name, energy,production,well_being, and date)
      */
     @Transactional
@@ -52,10 +52,16 @@ public class EvaluationService {
                         .zipWith(teamRepo.getByUserTeamsId(evaluation.getUserTeamsId()).map(Team::getId))
                         .map(result -> result.getT1().setTeamId(result.getT2()))
                         .flatMap(evaluation1 ->evaluationRepo.save(evaluation1)
-                                .flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource))
+                                .flatMap(this::getRelations)
+                                .map(evaluationMapper::toEvaluationResource))
                         : Mono.error(new IllegalArgumentException("There is an evaluation registered this date")));
     }
 
+    /**
+     * Updates the evaluation if it comes with an id
+     * @param evaluation its expected to be with an id.
+     * @return evaluation mapped (id,user name,team name, energy,production,well_being, and date)
+     */
     @Transactional
     public Mono<EvaluationResource> update(Evaluation evaluation) {
         if (evaluation.getId() != null) {
@@ -76,8 +82,8 @@ public class EvaluationService {
 
     /**
      * creates or updates depending on id sent in request, request is not accepted if userTeamsId, energy, production and/or well being are missing
-     * @param evaluation
-     * @return
+     * @param evaluation is the pojo an it can be with or without id
+     * @return evaluation mapped (id,user name,team name, energy,production,well_being, and date)
      */
     @Transactional
     public Mono<EvaluationResource> createOrUpdate(Evaluation evaluation){
@@ -100,8 +106,8 @@ public class EvaluationService {
 
     /**
      * get User id and Team id from userTeamsId, then listen to notification and return as evaluationResource
-     * @param userTeamId
-     * @return
+     * @param userTeamId is the id of the relation between user and team
+     * @return evaluation mapped (id,user name,team name, energy,production,well_being, and date)
      */
     public Flux<EvaluationResource> listenSaved(Long userTeamId) {
 
@@ -113,28 +119,59 @@ public class EvaluationService {
 
     }
 
-
+    /**
+     * gets all the evaluations of the team relative to the userteamsId
+     * @param userTeamsId is the id of the relation between user and team
+     * @return evaluation mapped (id,user name,team name, energy,production,well_being, and date)
+     */
     public Flux<EvaluationResource> getByDateAndTeamId(Long userTeamsId) {
-        return evaluationRepo.findAllByDateAndTeamId(userTeamsId).flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
+        return evaluationRepo.findAllByUserTeamsId(userTeamsId).flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
     }
 
+    /**
+     * gets the total average of the evaluation values (production,energy, wellbeing) of a team on a specific date.
+     * @param date date as string
+     * @param teamId the id of the team
+     * @return evaluationCalculations: average and deviation of the values.
+     */
     public Mono<EvaluationCalculations> getAverageByDateAndTeam(String date, Long teamId){
         return evaluationRepo.getAverageByDateAndTeam(teamId,date);
     }
+
+    /**
+     * gets total average of the given team
+     * @param teamId the id of the team
+     * @return evaluationCalculations: average and deviation of the values.
+     */
     public Mono<EvaluationCalculations> getTotalAverageByTeam( Long teamId){
         return evaluationRepo.getTotalAverageByTeam(teamId);
     }
 
+    /**
+     * gets a list of with the every day average by the given team
+     * @param teamId the id of the team
+     * @return evaluationCalculations: average and deviation of the values
+     */
     public Flux<EvaluationCalculations> getAllAverageOfDatesByTeam( Long teamId){
         return evaluationRepo.getAllAverageOfDatesByTeam(teamId);
     }
+
+    /**
+     * gets averages and max/min values of the user (same method in userservice, we keep this to be present when we decouple evaluation service)
+     * @param userId the id of the user
+     * @return pojo with users total averages and max and min
+     */
     public Mono<UserEvaluationCalculationsResource> getUserEvaluationCalculations(Long userId){
         return userRepo.getEvaluationsTeamAverageByDate(userId).collectList().
                 zipWith(userRepo.getEvaluationsMaxAndMin(userId))
                 .map(result->new UserEvaluationCalculationsResource(result.getT1(),result.getT2()));
     }
 
-
+    /**
+     * helper method to get user and team entities in evaluation
+     * @param evaluation is the evaluation entity
+     * @return evaluation entity with user and team inserted
+     */
     private Mono<Evaluation> getRelations(final Evaluation evaluation) {
         return Mono.just(evaluation)
                 .zipWith(teamRepo.findById(evaluation.getTeamId()))
@@ -142,12 +179,22 @@ public class EvaluationService {
                 .zipWith(userRepo.findById(evaluation.getUserId()))
                 .map(result -> result.getT1().setUser(result.getT2()));
     }
+
+    /**
+     * helper method to get server actual date.
+     * @return date as String
+     */
     private String todayDateString() {
         LocalDateTime today = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return today.format(formatter);
     }
 
+    /**
+     * delete method kept for the future when Admin is implemented, deletes evaluation by given Id
+     * @param id the id of evaluation
+     * @return evaluation mapped (id,user name,team name, energy,production,well_being, and date)
+     */
     @Transactional
     public Mono<EvaluationResource> delete(Long id) {
 
@@ -158,6 +205,11 @@ public class EvaluationService {
 
 
     }
+
+    /**
+     * find all method kept for the future when Admin is implemented, gets all the evaluations
+     * @return evaluation mapped (id,user name,team name, energy,production,well_being, and date)
+     */
     public Flux<EvaluationResource> getAll() {
         return evaluationRepo.findAll().flatMap(this::getRelations).map(evaluationMapper::toEvaluationResource);
     }
