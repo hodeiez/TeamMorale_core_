@@ -27,30 +27,7 @@ public class TeamController {
     private final TeamService teamService;
     private final JWTutil jwTutil;
 
-    @PostMapping
-    public Mono<TeamResource> create(@RequestBody Team team) {
-        return teamService.create(team);
-    }
 
-    @PutMapping
-    public  Mono<ResponseEntity<TeamResource>> update(@RequestBody Team team) {
-        return teamService.update(team)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public Flux<TeamResource> getAll() {
-        return teamService.getAll();
-    }
-
-    @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<TeamResource>> deleteById(@PathVariable("id") Long id) {
-        return teamService.delete(id)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-    /*extra endpoints*/
     @GetMapping("/myTeams/")
     public Flux<TeamAndMembersResource> getMyTeams(@RequestHeader(value="Authorization") String authorization){
         return teamService.getByEmail(jwTutil.getUserEmail(authorization));

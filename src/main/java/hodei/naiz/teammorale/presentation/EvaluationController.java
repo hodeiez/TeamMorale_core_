@@ -30,30 +30,7 @@ public class EvaluationController {
     private final EvaluationService evaluationService;
     private final JWTutil jwTutil;
 
-    @PostMapping
-    public Mono<ResponseEntity<EvaluationResource>> create(@RequestBody Evaluation evaluation) {
-        return evaluationService.create(evaluation).map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
 
-    @PutMapping
-    public  Mono<ResponseEntity<EvaluationResource>> update(@RequestBody Evaluation evaluation) {
-        return evaluationService.update(evaluation)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public Flux<EvaluationResource> getAll() {
-        return evaluationService.getAll();
-    }
-
-    @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<EvaluationResource>> deleteById(@PathVariable("id") Long id) {
-        return evaluationService.delete(id)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
     @GetMapping(value = "events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Event> listenToEvents(@RequestParam("userTeamId") String userTeamId,@RequestParam("auth")String authorization) {
        return jwTutil.validateToken(authorization.substring(7))?
