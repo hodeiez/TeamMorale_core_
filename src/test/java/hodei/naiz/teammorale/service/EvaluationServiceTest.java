@@ -81,13 +81,13 @@ class EvaluationServiceTest {
     private Mono<Team> mockTeam(){
         return Mono.just(new Team().setId(1L).setName("nameTest"));
     }
-    private EvaluationResource mockEvaluationResource(){
+    private EvaluationResource mockEvaluationResource(Long production,Long energy,Long wellBeing){
         var er=new EvaluationResource();
         er.setUsername("userNameTest");
         er.setTeam("nameTest");
-        er.setProduction(10L);
-        er.setEnergy(10L);
-        er.setWellBeing(10L);
+        er.setProduction(production);
+        er.setEnergy(energy);
+        er.setWellBeing(wellBeing);
         er.setDate("today");
         er.setId(1L);
         return er;
@@ -103,13 +103,14 @@ class EvaluationServiceTest {
         given(teamRepo.getByUserTeamsId(anyLong())).willReturn(mockTeam);
         given(teamRepo.findById(anyLong())).willReturn(mockTeam);
         given(userRepo.findById(anyLong())).willReturn(mockUser);
-        given(evaluationMapper.toEvaluationResource(any(Evaluation.class))).willReturn(mockEvaluationResource());
+        given(evaluationMapper.toEvaluationResource(any(Evaluation.class))).willReturn(mockEvaluationResource(10L,10L,10L));
 
         Mono<EvaluationResource> create= evaluationService.create(mockEvaluationDTO());
         StepVerifier.create(create).thenConsumeWhile(result->{
             assertNotNull(result);
             assertNotNull(result.getId());
-            assertEquals(result,mockEvaluationResource());
+            assertEquals(result,mockEvaluationResource(10L,10L,10L));
+
             return true;
         }).verifyComplete();
     } @Test
@@ -123,7 +124,7 @@ class EvaluationServiceTest {
         given(teamRepo.getByUserTeamsId(anyLong())).willReturn(mockTeam);
         given(teamRepo.findById(anyLong())).willReturn(mockTeam);
         given(userRepo.findById(anyLong())).willReturn(mockUser);
-        given(evaluationMapper.toEvaluationResource(any(Evaluation.class))).willReturn(mockEvaluationResource());
+        given(evaluationMapper.toEvaluationResource(any(Evaluation.class))).willReturn(mockEvaluationResource(10L,10L,10L));
 
         Mono<EvaluationResource> create= evaluationService.create(mockEvaluationDTO());
         StepVerifier.create(create).thenConsumeWhile(result->{assertNotNull(result); return true;}).verifyError(IllegalArgumentException.class);
@@ -133,10 +134,45 @@ class EvaluationServiceTest {
 
 
     @Test
-    void update() {
+    void itShouldUpdate() {
+        Mono<Evaluation> mock= mockEvaluation().map(e->e.setEnergy(1L).setProduction(1L).setWellBeing(1L));
+        Mono<Team> mockTeam=mockTeam();
+        Mono<User> mockUser=mockUser();
+        given(teamRepo.findById(anyLong())).willReturn(mockTeam);
+        given(userRepo.findById(anyLong())).willReturn(mockUser);
+        given(evaluationMapper.toEvaluationResource(any(Evaluation.class))).willReturn(mockEvaluationResource(1L,1L,1L));
+        given(evaluationRepo.findById(anyLong())).willReturn(mockEvaluation());
+        given(evaluationRepo.save(any(Evaluation.class))).willReturn(mock);
+        Mono<EvaluationResource> create= evaluationService.update(mockEvaluationDTO().setEnergy(1L).setProduction(1L).setWellBeing(1L).setId(1L));
+
+
+     var expected=mockEvaluationResource(1L,1L,1L);
+
+
+        StepVerifier.create(create).thenConsumeWhile(result->{
+            assertNotNull(result);
+            assertNotNull(result.getId());
+            assertEquals(result,expected);
+            return true;
+        }).verifyComplete();
+    }
+    @Test
+    void itShouldShowExceptionInUpdateWhenIdIsNull() {
+        Mono<Evaluation> mock= mockEvaluation().map(e->e.setEnergy(1L).setProduction(1L).setWellBeing(1L));
+        Mono<Team> mockTeam=mockTeam();
+        Mono<User> mockUser=mockUser();
+        given(teamRepo.findById(anyLong())).willReturn(mockTeam);
+        given(userRepo.findById(anyLong())).willReturn(mockUser);
+        given(evaluationMapper.toEvaluationResource(any(Evaluation.class))).willReturn(mockEvaluationResource(1L,1L,1L));
+        given(evaluationRepo.findById(anyLong())).willReturn(mockEvaluation());
+        given(evaluationRepo.save(any(Evaluation.class))).willReturn(mock);
+        Mono<EvaluationResource> create= evaluationService.update(mockEvaluationDTO().setEnergy(1L).setProduction(1L).setWellBeing(1L).setId(null));
+
+
+
+        StepVerifier.create(create).thenConsumeWhile(result->{assertNotNull(result); return true;}).verifyError(IllegalArgumentException.class);
+
     }
 
-    @Test
-    void createOrUpdate() {
-    }
+
 }
