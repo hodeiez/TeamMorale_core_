@@ -37,17 +37,7 @@ public class TeamController {
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
-    @PostMapping("/addUser/user/{userId}/team/{teamId}")
-    public Mono<ResponseEntity<Long>> addUserToTeam (@PathVariable("userId") Long userId,@PathVariable("teamId") Long teamId){
-        return teamService.addUserToTeam(userId,teamId)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
-    @PostMapping("/addemails")
-    public Mono<ResponseEntity<TeamAndMembersResource>> addUserEmailsToTeam(@RequestBody TeamAndMembersResource team){
-        return teamService.addUsersToTeam(team.getMembers(), team.getId()).map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
+
     @PostMapping("/createTeamWithEmails/")
     public Mono<ResponseEntity<TeamAndMembersResource>> createTeamWithEmails(@RequestBody TeamAndMembersResource team,@RequestHeader(value="Authorization") String authorization){
         return teamService.createWithUsers(team, jwTutil.getUserEmail(authorization)).map(ResponseEntity::ok)
