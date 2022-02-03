@@ -37,28 +37,52 @@ public class TeamService {
     private final UserRepo userRepo;
     private final PublisherService publisherService;
 
+    /**
+     * get a team by given id
+     * @param teamId the team id
+     * @return teamAnMembersResource has properties: team id, team name, team start
+     * and updates date list of members names and list of members emails;
+     */
     public Mono<TeamAndMembersResource> getOne(Long teamId) {
         return teamRepo.findById(teamId).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
 
-    @Transactional
-    public Mono<Long> addUserToTeam(Long userId, Long teamId) {
+    /**
+     * helper method, if team and user are in database creates a relation between them and returns the userTeams id
+     * @param userId the user id
+     * @param teamId the team id
+     * @return userTeamsId as Long.
+     */
+
+    private Mono<Long> addUserToTeam(Long userId, Long teamId) {
         return teamRepo.existsById(teamId).flatMap(teamExists -> teamExists ?
                 userRepo.existsById(userId).flatMap(userExists -> userExists ?
-                        teamRepo.addUserToTeam(userId, teamId)//.doOnSuccess(consume->{sendEmailsExistingUsers(userId,teamId);})
+                        teamRepo.addUserToTeam(userId, teamId)
                         : Mono.error(new IllegalArgumentException("User doesn't exist")))
                 : Mono.error(new IllegalArgumentException("Team doesn't exist")));
     }
 
+    /**
+     * get all teams of the given user email
+     * @param email the user email
+     * @return teamAnMembersResource has properties: userTeams id, team id, team name, team start
+     *      and updates date list of members names and list of members emails
+     */
     public Flux<TeamAndMembersResource> getByEmail(String email) {
         return teamRepo.getAllByEmail(email).flatMap(t -> addUserTeamsIdToTeam(t, email))
                 .flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
 
-
+    /**
+     * adds/subcribes a list of users to the team if they are found in the database
+     * @param mails list of users emails
+     * @param teamId team id
+     * @return teamAnMembersResource has properties: userTeams id, team id, team name, team start
+     *          and updates date list of members names and list of members emails
+     */
     @Transactional
     public Mono<TeamAndMembersResource> addUsersToTeam(List<String> mails, Long teamId) {
-       mails.forEach(m->sendEmailsToNotExistingUser(m,teamId));
+       mails.forEach(m-> sendEmailsToAddedUsers(m,teamId));
         return Flux.fromIterable(mails).concatMap(mail -> userRepo.findOneByEmail(mail)
                 .flatMap(u -> userRepo.userExistsInTeam(u.getId(), teamId)
                         .flatMap(isInTeam -> !isInTeam ? addUserToTeamWithEmail(mail, teamId)
@@ -66,6 +90,13 @@ public class TeamService {
                 .then(teamRepo.findById(teamId)).flatMap(this::setUsersInTeam).map(teamMapper::getWithMembersResource);
     }
 
+    /**
+     * creates a new team with given users emails
+     * @param teamWithEmails the users email to add
+     * @param creatorEmail the email of the user who creates the team
+     * @return teamAnMembersResource has properties: userTeams id, team id, team name, team start
+     *          and updates date list of members names and list of members emails
+     */
     @Transactional
     public Mono<TeamAndMembersResource> createWithUsers(TeamAndMembersResource teamWithEmails, String creatorEmail) {
 
@@ -76,7 +107,13 @@ public class TeamService {
 
     }
 
-
+    /**
+     * if user is in team and name,members to remove or members to add are defined it updates them
+     * @param email email of the user who updates
+     * @param teamUpdateResource the dto for update
+     * @return teamAnMembersResource has properties: userTeams id, team id, team name, team start
+     *          and updates date list of members names and list of members emails
+     */
     @Transactional
     public Mono<TeamAndMembersResource> updateTeam(String email,TeamUpdateResource teamUpdateResource) {
         return  userRepo.userExistsInTeamWithUserTeamsAndEmail(teamUpdateResource.getUserTeamId(), email)
@@ -99,11 +136,23 @@ public class TeamService {
 
     }
 
+    /**
+     * removes the userTeam relation
+     * @param email user email
+     * @param teamId team id
+     * @return team id, name and startDate
+     */
     @Transactional
     public Mono<TeamResource> unsubscribeUserByEmail(String email, Long teamId) {
         return teamRepo.unsubscribeUserByEmail(teamId, email).map(teamMapper::getResource);
     }
 
+    /**
+     * if the caller user is in team it deletes the team and all its related userTeams and evaluations
+     * @param email the caller user email
+     * @param userTeamId the userTeam id (user team relation)
+     * @return team id, name and startDate of the deleted team
+     */
     @Transactional
     public Mono<TeamResource> deleteTeamFull(String email, Long userTeamId) {
         return userRepo.userExistsInTeamWithUserTeamsAndEmail(userTeamId, email)
@@ -113,23 +162,44 @@ public class TeamService {
                         : Mono.error(new IllegalArgumentException("This user has no access to this feature")));
     }
 
+    /**
+     * helper method, sets a list of users in team
+     * @param team the team object
+     * @return team object
+     */
     private Mono<Team> setUsersInTeam(Team team) {
         return Mono.just(team).zipWith(userRepo.findAllByTeamId(team.getId()).collectList(), Team::setMembers);
     }
 
+    /**
+     * helper method, sets the userTeam id to the given team
+     * @param team the team object
+     * @param email email of the user related to the user teams
+     * @return team object
+     */
     private Mono<Team> addUserTeamsIdToTeam(Team team, String email) {
         return userRepo.findOneByEmail(email).map(User::getId)
                 .flatMap(u -> Mono.just(team).zipWith(teamRepo.getUserTeamsId(u, team.getId()), Team::setUserTeamsId));
     }
 
-
+    /**
+     * helper method,creates a userTeams by given user email and team id
+     * @param email email of the user to add
+     * @param teamId team id
+     * @return userTeams id
+     */
     private Mono<Long> addUserToTeamWithEmail(String email, Long teamId) {
         return userRepo.findOneByEmail(email)
                 .flatMap(u -> addUserToTeam(u.getId(), teamId))
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Email doesn't exist")));
     }
 
-    private void sendEmailsToNotExistingUser(String email, Long teamId){
+    /**
+     * sends message to email service to the user added to team
+     * @param email email of the added user
+     * @param teamId team id
+     */
+    private void sendEmailsToAddedUsers(String email, Long teamId){
         Mono<User> user=userRepo.findOneByEmail(email).switchIfEmpty(Mono.just(new User()));
         Mono<Team> team=teamRepo.findById(teamId);
       user.zipWith(team).doOnNext(t->publisherService.sendEmail(EmailServiceMessage.buildAddedToTeam()
@@ -142,7 +212,11 @@ public class TeamService {
 
     }
 
-    /*Basic CRUDs*/
+    /**
+     * saved method to use when Admin role exists, it creates a team if id is null
+     * @param team team object
+     * @return teamResource: team id, team name and start date
+     */
     @Transactional
     public Mono<TeamResource> create(Team team) {
         if (team.getId() != null)
@@ -150,6 +224,11 @@ public class TeamService {
         return teamRepo.save(team).map(teamMapper::getResource);
     }
 
+    /**
+     * saved method to use when Admin role exists, it updates a team if id is not null
+     * @param team team object
+     * @return teamResource: team id, team name and start date
+     */
     @Transactional
     public Mono<TeamResource> update(Team team) {
         if (team.getId() != null) {
@@ -165,6 +244,10 @@ public class TeamService {
 
     }
 
+    /**
+     *  saved method to use when Admin role exists, returns a list of teams
+     * @return list of teamResource
+     */
     public Flux<TeamResource> getAll() {
         return teamRepo.findAll().map(teamMapper::getResource);
     }
